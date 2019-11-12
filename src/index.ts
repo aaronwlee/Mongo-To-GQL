@@ -2,6 +2,7 @@ import path from 'path';
 import glob from 'glob';
 import { gql } from 'apollo-server-express';
 import { Logger } from 'winston';
+import defaultlogger from './logger'
 
 class MongoToGQL {
     public typeDefs: string = `\nscalar Date\n`;
@@ -18,7 +19,7 @@ class MongoToGQL {
     private logger: Logger = null;
 
     constructor(userLogger?: Logger) {
-        this.logger = userLogger ? userLogger : require('./logger');
+        this.logger = userLogger ? userLogger : defaultlogger;
     }
 
     private convertCapAndRemovePlural = (fieldName: string) => {
