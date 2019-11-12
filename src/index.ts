@@ -1,12 +1,11 @@
 import path from 'path';
 import glob from 'glob';
-import logger from './logger'
-import { Logger } from 'winston';
 import { gql } from 'apollo-server-express';
+import { Logger } from 'winston';
 
 class MongoToGQL {
     public typeDefs: string = `\nscalar Date\n`;
-    public typeQueryDefs: string = `\ntype Query {\n`
+    private typeQueryDefs: string = `\ntype Query {\n`
 
     public resolvers: any = {
         Query: {
@@ -19,7 +18,7 @@ class MongoToGQL {
     private logger: Logger = null;
 
     constructor(userLogger?: Logger) {
-        this.logger = userLogger ? userLogger : logger;
+        this.logger = userLogger ? userLogger : require('./logger');
     }
 
     private convertCapAndRemovePlural = (fieldName: string) => {
@@ -167,7 +166,7 @@ class MongoToGQL {
                         if (splitedKey[0] === "id") {
                             splitedKey[0] = "_id"
                         }
-                        
+
                         if (splitedKey[1] === "has") {
                             queryMap[splitedKey[0]] = new RegExp(filter[filterKey], "i")
                         }
@@ -215,7 +214,7 @@ class MongoToGQL {
     public generate(modelFolderPath: string, type: string = 'js') {
         return new Promise(async (resolve, reject) => {
             try {
-                logger.debug('GQL autogenerater - start')
+                this.logger.debug('GQL autogenerater - start')
                 const modelPathList: string[] = await this.readModelList(modelFolderPath, type)
 
                 modelPathList.forEach((modelPath: any) => {
@@ -230,7 +229,7 @@ class MongoToGQL {
 
                 this.typeQueryDefs += `} \n`
                 this.typeDefs += this.typeQueryDefs;
-                logger.debug('GQL autogenerater - complete')
+                this.logger.debug('GQL autogenerater - complete')
                 resolve()
             } catch (error) {
                 reject(error)

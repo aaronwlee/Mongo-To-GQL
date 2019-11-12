@@ -1,10 +1,11 @@
 {
   "name": "mongo-to-gql",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "mongodb model to graphql for apollo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Aaron Lee",
+  "repository": "aaronwlee/Mongo-To-GQL",
   "license": "MIT",
   "scripts": {
     "build": "npm tsc",

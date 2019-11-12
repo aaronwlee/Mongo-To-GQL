@@ -12,7 +12,7 @@ const myFormat = format.printf(({ level, message, label, ...others }) => {
 
 const options: LoggerOptions = {
     format: format.combine(
-        format.label({ label: "MTG" }),
+        format.label({ label: "MonToG" }),
         format.colorize(),
         myFormat
     ),
