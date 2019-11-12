@@ -1,5 +1,5 @@
 # Mongo-To-GQL
-(https://img.shields.io/github/license/aaronwlee/Mongo-To-GQL)
+https://img.shields.io/github/license/aaronwlee/Mongo-To-GQL
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 
 ## Getting Started
