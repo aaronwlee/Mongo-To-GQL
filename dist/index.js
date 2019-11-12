@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 const glob_1 = __importDefault(require("glob"));
-const logger_1 = __importDefault(require("./logger"));
 const apollo_server_express_1 = require("apollo-server-express");
 class MongoToGQL {
     constructor(userLogger) {
@@ -93,7 +92,7 @@ class MongoToGQL {
             returnTypeDef += `}\n`;
             this.typeDefs += returnTypeDef;
         };
-        this.logger = userLogger ? userLogger : logger_1.default;
+        this.logger = userLogger ? userLogger : require('./logger');
     }
     readModelList(modelFolderPath, type = 'js') {
         return new Promise((resolve, reject) => {
@@ -163,8 +162,11 @@ class MongoToGQL {
                     // map query
                     let queryMap = {};
                     Object.keys(filter).forEach(filterKey => {
-                        const splitedKey = filterKey.split('_');
-                        if (splitedKey[1] === 'has') {
+                        let splitedKey = filterKey.split('_');
+                        if (splitedKey[0] === "id") {
+                            splitedKey[0] = "_id";
+                        }
+                        if (splitedKey[1] === "has") {
                             queryMap[splitedKey[0]] = new RegExp(filter[filterKey], "i");
                         }
                         else if (splitedKey[1]) {
@@ -199,7 +201,7 @@ class MongoToGQL {
     generate(modelFolderPath, type = 'js') {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
-                logger_1.default.debug('GQL autogenerater - start');
+                this.logger.debug('GQL autogenerater - start');
                 const modelPathList = yield this.readModelList(modelFolderPath, type);
                 modelPathList.forEach((modelPath) => {
                     const model = require(path_1.default.resolve(modelPath));
@@ -211,7 +213,7 @@ class MongoToGQL {
                 });
                 this.typeQueryDefs += `} \n`;
                 this.typeDefs += this.typeQueryDefs;
-                logger_1.default.debug('GQL autogenerater - complete');
+                this.logger.debug('GQL autogenerater - complete');
                 resolve();
             }
             catch (error) {

@@ -23,7 +23,7 @@ const myFormat = winston_1.format.printf((_a) => {
     return formatedString;
 });
 const options = {
-    format: winston_1.format.combine(winston_1.format.label({ label: "MTG" }), winston_1.format.colorize(), myFormat),
+    format: winston_1.format.combine(winston_1.format.label({ label: "MonToG" }), winston_1.format.colorize(), myFormat),
     transports: [
         new winston_1.transports.Console({
             level: process.env.NODE_ENV === "production" ? "error" : "debug"

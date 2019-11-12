@@ -1,7 +1,7 @@
 import { Logger } from 'winston';
 declare class MongoToGQL {
     typeDefs: string;
-    typeQueryDefs: string;
+    private typeQueryDefs;
     resolvers: any;
     converted: any;
     private logger;
