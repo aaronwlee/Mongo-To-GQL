@@ -1,11 +1,11 @@
 # Mongo-To-GQL
-
+(https://img.shields.io/github/license/aaronwlee/Mongo-To-GQL)
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 
 ## Getting Started
 Mongo model basic
 * export const schema and export const model must implemented!
-```
+```js
 type UserDocument = Document & {
     email: string;
     name: string;
@@ -20,7 +20,7 @@ export const model = mongoose.model<UserDocument>("User", schema);
 ```
 
 After model to gql
-```
+```js
 query getUsers {
   Users(page: 0, limit: 4, filter: {name_has: "j", email_in: ["jisu@asd.com", "wooseok"]}, sort: updatedAt_asc) {
     data {
@@ -41,8 +41,8 @@ query UserByID {
 }
 ```
 Result
-```
-# query getUsers
+```js
+// query getUsers
 {
   "data": {
     "Users": {
@@ -64,7 +64,7 @@ Result
   }
 }
 
-# query UserByID
+// query UserByID
 {
   "data": {
     "User": {
@@ -79,7 +79,7 @@ Result
 
 This module based on Express, apollo-server and MongoDB with Mongoosejs
 
-```
+```js
 "apollo-server": "^2.9.7",
 "apollo-server-express": "^2.9.7",
 "express": "^4.17.1",
@@ -91,13 +91,13 @@ This module based on Express, apollo-server and MongoDB with Mongoosejs
 ### Installing
 
 ```
-npm i mongo-to-gql
+$ npm i mongo-to-gql
 ```
 
 Or
 
 ```
-yarn add mongo-to-gql
+$ yarn add mongo-to-gql
 ```
 
 ## Running the tests
@@ -105,7 +105,7 @@ yarn add mongo-to-gql
 Mongo model with mongoosejs
 
 user.ts in src/model
-```
+```js
 import mongoose, { Schema, Document } from "mongoose";
 import * as Product from './Product';
 
@@ -140,7 +140,7 @@ export const model = mongoose.model<UserDocument>("User", schema);
 
 
 and after mongo connection in app.ts
-```
+```js
 import mongoose from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
 import MongoToGQL from 'mongo-to-gql'
