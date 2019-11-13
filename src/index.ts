@@ -4,9 +4,9 @@ import { gql } from 'apollo-server-express';
 import { Logger } from 'winston';
 import defaultlogger from './logger'
 import convertType from './util/convertType';
-import { convertCapAndAddPlural, convertCapAndRemovePlural } from './util/convertCap';
+import { convertCapAndAddPlural, convertCapAndRemovePlural, convertFirstLowercase } from './util/convertCap';
 
-export interface MutationClass {
+export interface Mutation {
     mutationName: string;
     inputType: {};
     resolver: any;
@@ -131,12 +131,12 @@ class MongoToGQL {
         return new Promise((resolve, reject) => {
             let tempString = ``
             if (type === "inputType") {
-                tempString += `type ${mutation.mutationName}InputType {\n`
+                tempString += `type ${convertCapAndRemovePlural(mutation.mutationName)}InputType {\n`
             }
             else {
                 tempString += `type ${type} {\n`
             }
-            Object.keys(mutation[type]).forEach((field, index) => {
+            Object.keys(mutation[type]).forEach((field) => {
                 if (this.types.includes(mutation[type][field])) {
                     tempString += `\t${field}: ${mutation[type][field]}\n`
                 }
@@ -245,7 +245,7 @@ class MongoToGQL {
                         const mutation = new Imported[mutationName]()
 
                         await this.mutationToDefinition(mutation, "inputType")
-                        this.resolvers.Mutation[convertCapAndAddPlural(mutationName)] = mutation.resolver
+                        this.resolvers.Mutation[convertFirstLowercase(mutationName)] = mutation.resolver
                         resolve()
                     })
                 }))
