@@ -4,7 +4,8 @@ import { gql } from 'apollo-server-express';
 import { Logger } from 'winston';
 import defaultlogger from './logger'
 import convertType from './util/convertType';
-import { convertCapAndAddPlural, convertCapAndRemovePlural, convertFirstLowercase } from './util/convertCap';
+import { convertCapAndAddPlural, convertCapAndRemovePlural, convertFirstLowercase, convertFirstUppercase } from './util/convertCap';
+import GraphQLJSON from 'graphql-type-json'
 
 export interface Mutation {
     mutationName: string;
@@ -13,10 +14,12 @@ export interface Mutation {
 }
 
 class MongoToGQL {
-    public typeDefs: string = `\nscalar Date\n`;
+    public typeDefs: string = `\n\tscalar Date\n\tscalar JSON`;
     private typeQueryDefs: string = `\ntype Query {\n`
+    private typeMutationDefs: string = `\ntype Mutation {\n`
 
     public resolvers: any = {
+        JSON: GraphQLJSON,
         Query: {
 
         },
@@ -127,11 +130,11 @@ class MongoToGQL {
         this.typeDefs += modelDef
     }
 
-    private mutationToDefinition(mutation: any, type: any) {
+    private mutationToInputDefinition(mutation: any, type: any) {
         return new Promise((resolve, reject) => {
             let tempString = `\n`
             if (type === "inputType") {
-                tempString += `type ${convertCapAndRemovePlural(mutation.mutationName)}InputType {\n`
+                tempString += `type ${convertFirstUppercase(mutation.mutationName)}InputType {\n`
             }
             else {
                 tempString += `type ${type} {\n`
@@ -142,7 +145,7 @@ class MongoToGQL {
                 }
                 else {
                     tempString += `\t${field}: ${mutation[type][field]}\n`
-                    this.mutationToDefinition(mutation, mutation[type][field])
+                    this.mutationToInputDefinition(mutation, mutation[type][field])
                 }
             })
             tempString += `}\n`
@@ -213,6 +216,18 @@ class MongoToGQL {
         this.typeQueryDefs += `\t${convertCapAndAddPlural(model.modelName)}(page: Int, limit: Int, filter: ${convertCapAndRemovePlural(model.modelName)}Query, sort: ${convertCapAndRemovePlural(model.modelName)}SortKey): ${convertCapAndRemovePlural(model.modelName)}ReturnType!\n`
     }
 
+    private mutationToMutationTypeDefinition = (mutationName: string) => {
+        this.typeMutationDefs += `\t${convertFirstLowercase(mutationName)}(input: ${convertFirstUppercase(mutationName)}InputType!): ${convertFirstUppercase(mutationName)}ReturnType\n`
+    }
+
+    private mutationToReturnTypeDefinition = (mutationName: string) => {
+        let returnTypeDef = `\ntype ${convertFirstUppercase(mutationName)}ReturnType {\n`
+        returnTypeDef += `\tdone: Boolean\n`
+        returnTypeDef += `\terror: JSON\n`
+        returnTypeDef += `}\n`
+        this.typeDefs += returnTypeDef
+    }
+
     private modelToReturnTypeDefinition = (modelName: string) => {
         let returnTypeDef = `\ntype ${convertCapAndRemovePlural(modelName)}ReturnType {\n`
         returnTypeDef += `\tdata: [${convertCapAndRemovePlural(modelName)}]\n`
@@ -243,11 +258,15 @@ class MongoToGQL {
                     const mutationName = Object.keys(Imported)[0]
                     const mutation = new Imported[mutationName]()
 
-                    await this.mutationToDefinition(mutation, "inputType")
+                    await this.mutationToInputDefinition(mutation, "inputType")
+                    this.mutationToMutationTypeDefinition(mutationName);
+                    this.mutationToReturnTypeDefinition(mutationName);
                     this.resolvers.Mutation[convertFirstLowercase(mutationName)] = mutation.resolver
                 })
+                this.typeMutationDefs += `} \n`
 
                 this.typeDefs += this.typeQueryDefs;
+                this.typeDefs += this.typeMutationDefs;
                 this.logger.debug('GQL autogenerater - complete')
                 resolve()
             } catch (error) {
