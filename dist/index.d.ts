@@ -7,6 +7,7 @@ export interface Mutation {
 declare class MongoToGQL {
     typeDefs: string;
     private typeQueryDefs;
+    private typeMutationDefs;
     resolvers: any;
     converted: any;
     private logger;
@@ -18,9 +19,11 @@ declare class MongoToGQL {
     private modelToTypeDefinition;
     private modelToQueryDefinition;
     private modelToSortKeyDefinition;
-    private mutationToDefinition;
+    private mutationToInputDefinition;
     private modelToDefaultQuery;
     private modelToGetALLQuery;
+    private mutationToMutationTypeDefinition;
+    private mutationToReturnTypeDefinition;
     private modelToReturnTypeDefinition;
     generate(modelFolderPath: string, mutationFolderPath: string, type?: string): Promise<unknown>;
 }

@@ -18,11 +18,14 @@ const apollo_server_express_1 = require("apollo-server-express");
 const logger_1 = __importDefault(require("./logger"));
 const convertType_1 = __importDefault(require("./util/convertType"));
 const convertCap_1 = require("./util/convertCap");
+const graphql_type_json_1 = __importDefault(require("graphql-type-json"));
 class MongoToGQL {
     constructor(userLogger) {
-        this.typeDefs = `\nscalar Date\n`;
+        this.typeDefs = `\n\tscalar Date\n\tscalar JSON`;
         this.typeQueryDefs = `\ntype Query {\n`;
+        this.typeMutationDefs = `\ntype Mutation {\n`;
         this.resolvers = {
+            JSON: graphql_type_json_1.default,
             Query: {},
             Mutation: {}
         };
@@ -51,6 +54,16 @@ class MongoToGQL {
                 returnString += `\t${fieldName}_has: String\n`;
             }
             return returnString;
+        };
+        this.mutationToMutationTypeDefinition = (mutationName) => {
+            this.typeMutationDefs += `\t${convertCap_1.convertFirstLowercase(mutationName)}(input: ${convertCap_1.convertFirstUppercase(mutationName)}InputType!): ${convertCap_1.convertFirstUppercase(mutationName)}ReturnType\n`;
+        };
+        this.mutationToReturnTypeDefinition = (mutationName) => {
+            let returnTypeDef = `\ntype ${convertCap_1.convertFirstUppercase(mutationName)}ReturnType {\n`;
+            returnTypeDef += `\tdone: Boolean\n`;
+            returnTypeDef += `\terror: JSON\n`;
+            returnTypeDef += `}\n`;
+            this.typeDefs += returnTypeDef;
         };
         this.modelToReturnTypeDefinition = (modelName) => {
             let returnTypeDef = `\ntype ${convertCap_1.convertCapAndRemovePlural(modelName)}ReturnType {\n`;
@@ -122,11 +135,11 @@ class MongoToGQL {
         modelDef += `}\n`;
         this.typeDefs += modelDef;
     }
-    mutationToDefinition(mutation, type) {
+    mutationToInputDefinition(mutation, type) {
         return new Promise((resolve, reject) => {
             let tempString = `\n`;
             if (type === "inputType") {
-                tempString += `type ${convertCap_1.convertCapAndRemovePlural(mutation.mutationName)}InputType {\n`;
+                tempString += `type ${convertCap_1.convertFirstUppercase(mutation.mutationName)}InputType {\n`;
             }
             else {
                 tempString += `type ${type} {\n`;
@@ -137,7 +150,7 @@ class MongoToGQL {
                 }
                 else {
                     tempString += `\t${field}: ${mutation[type][field]}\n`;
-                    this.mutationToDefinition(mutation, mutation[type][field]);
+                    this.mutationToInputDefinition(mutation, mutation[type][field]);
                 }
             });
             tempString += `}\n`;
@@ -221,10 +234,14 @@ class MongoToGQL {
                     const Imported = require(path_1.default.resolve(mutationPath));
                     const mutationName = Object.keys(Imported)[0];
                     const mutation = new Imported[mutationName]();
-                    yield this.mutationToDefinition(mutation, "inputType");
+                    yield this.mutationToInputDefinition(mutation, "inputType");
+                    this.mutationToMutationTypeDefinition(mutationName);
+                    this.mutationToReturnTypeDefinition(mutationName);
                     this.resolvers.Mutation[convertCap_1.convertFirstLowercase(mutationName)] = mutation.resolver;
                 }));
+                this.typeMutationDefs += `} \n`;
                 this.typeDefs += this.typeQueryDefs;
+                this.typeDefs += this.typeMutationDefs;
                 this.logger.debug('GQL autogenerater - complete');
                 resolve();
             }
