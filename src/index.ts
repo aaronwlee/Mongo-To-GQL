@@ -129,7 +129,7 @@ class MongoToGQL {
 
     private mutationToDefinition(mutation: any, type: any) {
         return new Promise((resolve, reject) => {
-            let tempString = ``
+            let tempString = `\n`
             if (type === "inputType") {
                 tempString += `type ${convertCapAndRemovePlural(mutation.mutationName)}InputType {\n`
             }
@@ -238,17 +238,14 @@ class MongoToGQL {
                 this.typeQueryDefs += `} \n`
 
                 const mutationPathList: string[] = await this.readMutationList(mutationFolderPath, type)
-                await Promise.all(mutationPathList.map((mutationPath: any) => {
-                    return new Promise(async (resolve, reject) => {
-                        const Imported = require(path.resolve(mutationPath))
-                        const mutationName = Object.keys(Imported)[0]
-                        const mutation = new Imported[mutationName]()
+                mutationPathList.forEach(async (mutationPath: any) => {
+                    const Imported = require(path.resolve(mutationPath))
+                    const mutationName = Object.keys(Imported)[0]
+                    const mutation = new Imported[mutationName]()
 
-                        await this.mutationToDefinition(mutation, "inputType")
-                        this.resolvers.Mutation[convertFirstLowercase(mutationName)] = mutation.resolver
-                        resolve()
-                    })
-                }))
+                    await this.mutationToDefinition(mutation, "inputType")
+                    this.resolvers.Mutation[convertFirstLowercase(mutationName)] = mutation.resolver
+                })
 
                 this.typeDefs += this.typeQueryDefs;
                 this.logger.debug('GQL autogenerater - complete')

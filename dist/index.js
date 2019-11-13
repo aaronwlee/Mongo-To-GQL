@@ -217,7 +217,7 @@ class MongoToGQL {
                 });
                 this.typeQueryDefs += `} \n`;
                 const mutationPathList = yield this.readMutationList(mutationFolderPath, type);
-                Promise.all(mutationPathList.map((mutationPath) => {
+                yield Promise.all(mutationPathList.map((mutationPath) => {
                     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                         const Imported = require(path_1.default.resolve(mutationPath));
                         const mutationName = Object.keys(Imported)[0];
