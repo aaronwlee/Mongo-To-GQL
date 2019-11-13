@@ -21,7 +21,7 @@ const convertCap_1 = require("./util/convertCap");
 const graphql_type_json_1 = __importDefault(require("graphql-type-json"));
 class MongoToGQL {
     constructor(userLogger) {
-        this.typeDefs = `\n\tscalar Date\n\tscalar JSON`;
+        this.typeDefs = `\nscalar Date\nscalar JSON\n\n`;
         this.typeQueryDefs = `\ntype Query {\n`;
         this.typeMutationDefs = `\ntype Mutation {\n`;
         this.resolvers = {
@@ -229,6 +229,7 @@ class MongoToGQL {
                     this.modelToGetALLQuery(model);
                 });
                 this.typeQueryDefs += `} \n`;
+                this.typeDefs += this.typeQueryDefs;
                 const mutationPathList = yield this.readMutationList(mutationFolderPath, type);
                 mutationPathList.forEach((mutationPath) => __awaiter(this, void 0, void 0, function* () {
                     const Imported = require(path_1.default.resolve(mutationPath));
@@ -240,7 +241,6 @@ class MongoToGQL {
                     this.resolvers.Mutation[convertCap_1.convertFirstLowercase(mutationName)] = mutation.resolver;
                 }));
                 this.typeMutationDefs += `} \n`;
-                this.typeDefs += this.typeQueryDefs;
                 this.typeDefs += this.typeMutationDefs;
                 this.logger.debug('GQL autogenerater - complete');
                 resolve();
