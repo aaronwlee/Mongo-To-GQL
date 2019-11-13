@@ -238,7 +238,7 @@ class MongoToGQL {
                 this.typeQueryDefs += `} \n`
 
                 const mutationPathList: string[] = await this.readMutationList(mutationFolderPath, type)
-                Promise.all(mutationPathList.map((mutationPath: any) => {
+                await Promise.all(mutationPathList.map((mutationPath: any) => {
                     return new Promise(async (resolve, reject) => {
                         const Imported = require(path.resolve(mutationPath))
                         const mutationName = Object.keys(Imported)[0]

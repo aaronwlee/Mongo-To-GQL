@@ -1,5 +1,5 @@
 import { Logger } from 'winston';
-export interface MutationClass {
+export interface Mutation {
     mutationName: string;
     inputType: {};
     resolver: any;

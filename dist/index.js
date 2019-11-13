@@ -126,12 +126,12 @@ class MongoToGQL {
         return new Promise((resolve, reject) => {
             let tempString = ``;
             if (type === "inputType") {
-                tempString += `type ${mutation.mutationName}InputType {\n`;
+                tempString += `type ${convertCap_1.convertCapAndRemovePlural(mutation.mutationName)}InputType {\n`;
             }
             else {
                 tempString += `type ${type} {\n`;
             }
-            Object.keys(mutation[type]).forEach((field, index) => {
+            Object.keys(mutation[type]).forEach((field) => {
                 if (this.types.includes(mutation[type][field])) {
                     tempString += `\t${field}: ${mutation[type][field]}\n`;
                 }
@@ -223,7 +223,7 @@ class MongoToGQL {
                         const mutationName = Object.keys(Imported)[0];
                         const mutation = new Imported[mutationName]();
                         yield this.mutationToDefinition(mutation, "inputType");
-                        this.resolvers.Mutation[convertCap_1.convertCapAndAddPlural(mutationName)] = mutation.resolver;
+                        this.resolvers.Mutation[convertCap_1.convertFirstLowercase(mutationName)] = mutation.resolver;
                         resolve();
                     }));
                 }));
