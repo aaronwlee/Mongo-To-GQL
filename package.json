@@ -1,6 +1,6 @@
 {
   "name": "mongo-to-gql",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "mongodb model to graphql for apollo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
