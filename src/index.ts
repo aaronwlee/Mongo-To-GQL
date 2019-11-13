@@ -14,7 +14,7 @@ export interface Mutation {
 }
 
 class MongoToGQL {
-    public typeDefs: string = `\n\tscalar Date\n\tscalar JSON`;
+    public typeDefs: string = `\nscalar Date\nscalar JSON\n\n`;
     private typeQueryDefs: string = `\ntype Query {\n`
     private typeMutationDefs: string = `\ntype Mutation {\n`
 
@@ -251,6 +251,7 @@ class MongoToGQL {
                     this.modelToGetALLQuery(model);
                 })
                 this.typeQueryDefs += `} \n`
+                this.typeDefs += this.typeQueryDefs;
 
                 const mutationPathList: string[] = await this.readMutationList(mutationFolderPath, type)
                 mutationPathList.forEach(async (mutationPath: any) => {
@@ -265,7 +266,6 @@ class MongoToGQL {
                 })
                 this.typeMutationDefs += `} \n`
 
-                this.typeDefs += this.typeQueryDefs;
                 this.typeDefs += this.typeMutationDefs;
                 this.logger.debug('GQL autogenerater - complete')
                 resolve()
