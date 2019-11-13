@@ -15,59 +15,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 const glob_1 = __importDefault(require("glob"));
 const apollo_server_express_1 = require("apollo-server-express");
+const logger_1 = __importDefault(require("./logger"));
+const convertType_1 = __importDefault(require("./util/convertType"));
+const convertCap_1 = require("./util/convertCap");
 class MongoToGQL {
     constructor(userLogger) {
         this.typeDefs = `\nscalar Date\n`;
         this.typeQueryDefs = `\ntype Query {\n`;
         this.resolvers = {
-            Query: {}
+            Query: {},
+            Mutation: {}
         };
         this.converted = () => ({ typeDefs: apollo_server_express_1.gql(this.typeDefs), resolvers: this.resolvers });
         this.logger = null;
-        this.convertCapAndRemovePlural = (fieldName) => {
-            let newFieldName = fieldName.charAt(0).toUpperCase() + fieldName.slice(1).toLowerCase();
-            if (newFieldName[newFieldName.length - 1] === 's') {
-                newFieldName = newFieldName.slice(0, newFieldName.length - 1);
-            }
-            return newFieldName;
-        };
-        this.convertCapAndAddPlural = (fieldName) => {
-            let newFieldName = fieldName.charAt(0).toUpperCase() + fieldName.slice(1).toLowerCase();
-            if (newFieldName[newFieldName.length - 1] !== 's') {
-                newFieldName += 's';
-            }
-            return newFieldName;
-        };
-        this.convertType = (type) => {
-            const basic = ["String", "Date", "Number"];
-            if (basic.includes(type.instance)) {
-                if (type.instance === "Number") {
-                    return "Int";
-                }
-                else {
-                    return type.instance;
-                }
-            }
-            else if (type.instance === "Array") {
-                if (basic.includes(type.caster.instance)) {
-                    if (type.caster.instance === "Number") {
-                        return '[Int]';
-                    }
-                    else {
-                        return `[${type.caster.instance}]`;
-                    }
-                }
-                else {
-                    return `[${this.convertCapAndRemovePlural(type.path)}]`;
-                }
-            }
-            else if (type.instance === "ObjectID") {
-                return this.convertCapAndRemovePlural(type.path);
-            }
-            else {
-                return type.instance;
-            }
-        };
+        this.types = [
+            "String", "String!", "[String]", "[String!]",
+            "Date", "Date!", "[Date]", "[Date!]",
+            "Int", "Int!", "[Int]", "[Int!]",
+            "ID", "ID!", "[ID]", "[ID!]",
+            "Float", "Float!", "[Float]", "[Float!]",
+            "Boolean", "Boolean!", "[Boolean]", "[Boolean!]"
+        ];
         this.convertQueryType = (fieldName, type) => {
             let returnString = ``;
             if (type.instance === "Date") {
@@ -85,14 +53,14 @@ class MongoToGQL {
             return returnString;
         };
         this.modelToReturnTypeDefinition = (modelName) => {
-            let returnTypeDef = `\ntype ${this.convertCapAndRemovePlural(modelName)}ReturnType {\n`;
-            returnTypeDef += `\tdata: [${this.convertCapAndRemovePlural(modelName)}]\n`;
+            let returnTypeDef = `\ntype ${convertCap_1.convertCapAndRemovePlural(modelName)}ReturnType {\n`;
+            returnTypeDef += `\tdata: [${convertCap_1.convertCapAndRemovePlural(modelName)}]\n`;
             returnTypeDef += `\tpage: Int\n`;
             returnTypeDef += `\ttotal: Int\n`;
             returnTypeDef += `}\n`;
             this.typeDefs += returnTypeDef;
         };
-        this.logger = userLogger ? userLogger : require('./logger');
+        this.logger = userLogger ? userLogger : logger_1.default;
     }
     readModelList(modelFolderPath, type = 'js') {
         return new Promise((resolve, reject) => {
@@ -107,21 +75,34 @@ class MongoToGQL {
             }
         });
     }
+    readMutationList(mutationFolderPath, type = 'js') {
+        return new Promise((resolve, reject) => {
+            const modelPathList = glob_1.default.sync(`${mutationFolderPath}/*.${type}`);
+            if (modelPathList.length === 0) {
+                this.logger.error(`GQL autogenerater - path: '${mutationFolderPath}/*.${type}' - found 0 files`);
+                reject(`path: '${mutationFolderPath}/*.${type}' - found 0 files`);
+            }
+            else {
+                this.logger.debug(`GQL autogenerater - found ${modelPathList.length} models`);
+                resolve(modelPathList);
+            }
+        });
+    }
     modelToTypeDefinition({ model, schema }) {
-        let modelDef = `\ntype ${this.convertCapAndRemovePlural(model.modelName)} {\n`;
+        let modelDef = `\ntype ${convertCap_1.convertCapAndRemovePlural(model.modelName)} {\n`;
         Object.keys(schema.paths).forEach(fieldName => {
             if (fieldName === '_id') {
                 modelDef += `\t_id: ID\n`;
             }
             else if (fieldName !== '__v') {
-                modelDef += `\t${fieldName}: ${this.convertType(schema.paths[fieldName])}\n`;
+                modelDef += `\t${fieldName}: ${convertType_1.default(schema.paths[fieldName])}\n`;
             }
         });
         modelDef += `}\n`;
         this.typeDefs += modelDef;
     }
     modelToQueryDefinition({ model, schema }) {
-        let modelDef = `\ninput ${this.convertCapAndRemovePlural(model.modelName)}Query {\n`;
+        let modelDef = `\ninput ${convertCap_1.convertCapAndRemovePlural(model.modelName)}Query {\n`;
         Object.keys(schema.paths).forEach(fieldName => {
             if (fieldName !== '__v') {
                 modelDef += this.convertQueryType(fieldName, schema.paths[fieldName]);
@@ -131,7 +112,7 @@ class MongoToGQL {
         this.typeDefs += modelDef;
     }
     modelToSortKeyDefinition({ model, schema }) {
-        let modelDef = `\nenum ${this.convertCapAndRemovePlural(model.modelName)}SortKey {\n`;
+        let modelDef = `\nenum ${convertCap_1.convertCapAndRemovePlural(model.modelName)}SortKey {\n`;
         Object.keys(schema.paths).forEach(fieldName => {
             if (fieldName !== '__v' && fieldName !== '_id') {
                 modelDef += `\t${fieldName}_asc\n`;
@@ -141,8 +122,31 @@ class MongoToGQL {
         modelDef += `}\n`;
         this.typeDefs += modelDef;
     }
+    mutationToDefinition(mutation, type) {
+        return new Promise((resolve, reject) => {
+            let tempString = ``;
+            if (type === "inputType") {
+                tempString += `type ${mutation.mutationName}InputType {\n`;
+            }
+            else {
+                tempString += `type ${type} {\n`;
+            }
+            Object.keys(mutation[type]).forEach((field, index) => {
+                if (this.types.includes(mutation[type][field])) {
+                    tempString += `\t${field}: ${mutation[type][field]}\n`;
+                }
+                else {
+                    tempString += `\t${field}: ${mutation[type][field]}\n`;
+                    this.mutationToDefinition(mutation, mutation[type][field]);
+                }
+            });
+            tempString += `}\n`;
+            this.typeDefs += tempString;
+            resolve();
+        });
+    }
     modelToDefaultQuery({ model }) {
-        this.resolvers.Query[this.convertCapAndRemovePlural(model.modelName)] = (_, { _id }) => {
+        this.resolvers.Query[convertCap_1.convertCapAndRemovePlural(model.modelName)] = (_, { _id }) => {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const data = model.findById(_id);
@@ -153,10 +157,10 @@ class MongoToGQL {
                 }
             }));
         };
-        this.typeQueryDefs += `\t${this.convertCapAndRemovePlural(model.modelName)}(_id: ID!): ${this.convertCapAndRemovePlural(model.modelName)}!\n`;
+        this.typeQueryDefs += `\t${convertCap_1.convertCapAndRemovePlural(model.modelName)}(_id: ID!): ${convertCap_1.convertCapAndRemovePlural(model.modelName)}!\n`;
     }
     modelToGetALLQuery({ model, gqlOption = {} }) {
-        this.resolvers.Query[this.convertCapAndAddPlural(model.modelName)] = (_, { filter = {}, page = 0, limit = 10, sort }) => {
+        this.resolvers.Query[convertCap_1.convertCapAndAddPlural(model.modelName)] = (_, { filter = {}, page = 0, limit = 10, sort }) => {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     // map query
@@ -196,9 +200,9 @@ class MongoToGQL {
             }));
         };
         this.modelToReturnTypeDefinition(model.modelName);
-        this.typeQueryDefs += `\t${this.convertCapAndAddPlural(model.modelName)}(page: Int, limit: Int, filter: ${this.convertCapAndRemovePlural(model.modelName)}Query, sort: ${this.convertCapAndRemovePlural(model.modelName)}SortKey): ${this.convertCapAndRemovePlural(model.modelName)}ReturnType!\n`;
+        this.typeQueryDefs += `\t${convertCap_1.convertCapAndAddPlural(model.modelName)}(page: Int, limit: Int, filter: ${convertCap_1.convertCapAndRemovePlural(model.modelName)}Query, sort: ${convertCap_1.convertCapAndRemovePlural(model.modelName)}SortKey): ${convertCap_1.convertCapAndRemovePlural(model.modelName)}ReturnType!\n`;
     }
-    generate(modelFolderPath, type = 'js') {
+    generate(modelFolderPath, mutationFolderPath, type = 'js') {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 this.logger.debug('GQL autogenerater - start');
@@ -212,6 +216,17 @@ class MongoToGQL {
                     this.modelToGetALLQuery(model);
                 });
                 this.typeQueryDefs += `} \n`;
+                const mutationPathList = yield this.readMutationList(mutationFolderPath, type);
+                Promise.all(mutationPathList.map((mutationPath) => {
+                    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                        const Imported = require(path_1.default.resolve(mutationPath));
+                        const mutationName = Object.keys(Imported)[0];
+                        const mutation = new Imported[mutationName]();
+                        yield this.mutationToDefinition(mutation, "inputType");
+                        this.resolvers.Mutation[convertCap_1.convertCapAndAddPlural(mutationName)] = mutation.resolver;
+                        resolve();
+                    }));
+                }));
                 this.typeDefs += this.typeQueryDefs;
                 this.logger.debug('GQL autogenerater - complete');
                 resolve();

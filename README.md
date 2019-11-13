@@ -176,6 +176,69 @@ connectWithRetry(MONGODB_URI).then(async () => {
 })
 ```
 
+mutation sample (in mutation folder) src/mutation/addUser.ts
+```js
+export class AddUser implements MutationClass {
+    mutationName: string = "AddUser"
+
+    public inputType = {
+        name: "String",
+        email: "String",
+        address: "String",
+        password: "String",
+        product: "ProductInputType",
+        test: "TestInputType"
+    }
+
+    public ProductInputType = {
+        name: "String",
+        detail: "String"
+    }
+
+    public TestInputType = {
+        text: "String"
+    }
+
+    public resolver = (_: any, { ...input }): Promise<any> => {
+        return new Promise((resolve, reject) => {
+            bcrypt.hash(input.password, 10, async function (err, hash) {
+                try {
+                    if (err) {
+                        reject('bcrypt error');
+                    }
+                    // Store hash in your password DB.
+                    const newProduct = await Product.model.create(input.product)
+                    const newTest = await Test.model.create(input.test)
+                    await User.model.create({
+                        name: input.name,
+                        address: input.address,
+                        email: input.email,
+                        password: hash,
+                        picture: this.getAvatar(input.email),
+                        product: newProduct,
+                        test: newTest
+                    })
+                    resolve(true)
+                } catch (error) {
+                    if (error.code === 11000) {
+                        reject('email already used');
+                    }
+                    else {
+                        reject(`${error} : bad happend while we are saving user data`);
+                    }
+                }
+
+            });
+        })
+    }
+
+    private getAvatar(Email: string, size: number = 200): string {
+        const md5 = crypto.createHash("md5").update(Email).digest("hex");
+        return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
+    }
+}
+```
+
 
 ## Authors
 
