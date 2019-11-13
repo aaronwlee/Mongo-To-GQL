@@ -134,10 +134,10 @@ class MongoToGQL {
         return new Promise((resolve, reject) => {
             let tempString = `\n`
             if (type === "inputType") {
-                tempString += `type ${convertFirstUppercase(mutation.mutationName)}InputType {\n`
+                tempString += `input ${convertFirstUppercase(mutation.mutationName)}InputType {\n`
             }
             else {
-                tempString += `type ${type} {\n`
+                tempString += `input ${type} {\n`
             }
             Object.keys(mutation[type]).forEach((field) => {
                 if (this.types.includes(mutation[type][field])) {
@@ -216,10 +216,6 @@ class MongoToGQL {
         this.typeQueryDefs += `\t${convertCapAndAddPlural(model.modelName)}(page: Int, limit: Int, filter: ${convertCapAndRemovePlural(model.modelName)}Query, sort: ${convertCapAndRemovePlural(model.modelName)}SortKey): ${convertCapAndRemovePlural(model.modelName)}ReturnType!\n`
     }
 
-    private mutationToMutationTypeDefinition = (mutationName: string) => {
-        this.typeMutationDefs += `\t${convertFirstLowercase(mutationName)}(input: ${convertFirstUppercase(mutationName)}InputType!): ${convertFirstUppercase(mutationName)}ReturnType\n`
-    }
-
     private mutationToReturnTypeDefinition = (mutationName: string) => {
         let returnTypeDef = `\ntype ${convertFirstUppercase(mutationName)}ReturnType {\n`
         returnTypeDef += `\tdone: Boolean\n`
@@ -254,16 +250,16 @@ class MongoToGQL {
                 this.typeDefs += this.typeQueryDefs;
 
                 const mutationPathList: string[] = await this.readMutationList(mutationFolderPath, type)
-                mutationPathList.forEach(async (mutationPath: any) => {
+                await Promise.all(mutationPathList.map(async (mutationPath: any) => {
                     const Imported = require(path.resolve(mutationPath))
                     const mutationName = Object.keys(Imported)[0]
                     const mutation = new Imported[mutationName]()
 
                     await this.mutationToInputDefinition(mutation, "inputType")
-                    this.mutationToMutationTypeDefinition(mutationName);
                     this.mutationToReturnTypeDefinition(mutationName);
+                    this.typeMutationDefs += `\t${convertFirstLowercase(mutationName)}(input: ${convertFirstUppercase(mutationName)}InputType!): ${convertFirstUppercase(mutationName)}ReturnType\n`
                     this.resolvers.Mutation[convertFirstLowercase(mutationName)] = mutation.resolver
-                })
+                }))
                 this.typeMutationDefs += `} \n`
 
                 this.typeDefs += this.typeMutationDefs;

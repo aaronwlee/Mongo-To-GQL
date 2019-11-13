@@ -161,7 +161,9 @@ const connectWithRetry = (mongoUrl: string) => {
 connectWithRetry(MONGODB_URI).then(async () => {
     try {
         const mongoToGQL = new MongoToGQL();
-        await mongoToGQL.generate(`${__dirname}/model`);
+        // model path and mutation path 
+        // todo: make this without __dirname
+        await mongoToGQL.generate(`${__dirname}/model`, `${__dirname}/mutation`);
 
         // you can see the results from this console.log
         // console.log("GQL converting start =>> ", mongoToGQL.typeDefs, "\n<<= GQL converting done")
@@ -178,7 +180,9 @@ connectWithRetry(MONGODB_URI).then(async () => {
 
 mutation sample (in mutation folder) src/mutation/addUser.ts
 ```js
-export class AddUser implements MutationClass {
+import { Mutation } from 'mongo-to-gql'
+
+export class AddUser implements Mutation {
     mutationName: string = "AddUser"
 
     public inputType = {
@@ -218,7 +222,10 @@ export class AddUser implements MutationClass {
                         product: newProduct,
                         test: newTest
                     })
-                    resolve(true)
+                    resolve({
+                        done: true,
+                        error: null
+                    })
                 } catch (error) {
                     if (error.code === 11000) {
                         reject('email already used');
