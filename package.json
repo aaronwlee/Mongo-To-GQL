@@ -1,6 +1,6 @@
 {
   "name": "mongo-to-gql",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "mongodb model to graphql for apollo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,12 +14,14 @@
   },
   "dependencies": {
     "@types/graphql-type-json": "^0.3.2",
+    "@types/mongoose": "^5.5.31",
     "apollo-server": "^2.9.7",
     "apollo-server-express": "^2.9.7",
     "express": "^4.17.1",
     "glob": "^7.1.6",
     "graphql": "^14.5.8",
     "graphql-type-json": "^0.3.0",
+    "mongoose": "^5.7.10",
     "winston": "^3.2.1"
   },
   "devDependencies": {

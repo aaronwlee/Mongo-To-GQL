@@ -5,7 +5,9 @@ Auto-generator for the MongoDB model to GraphQL type definition and query resolv
 
 ## Getting Started
 Mongo model basic
-* export const schema and export const model must implemented!
+
+* export const schema and const model in your mongo model file
+ex) src/model/user.model.ts
 ```js
 type UserDocument = Document & {
     email: string;
@@ -20,10 +22,10 @@ export const schema: any = new Schema({
 export const model = mongoose.model<UserDocument>("User", schema);
 ```
 
-After model to gql
+After using our mongo-to-gql, you'll get auto-generated this queries and gql definitions
 ```js
 query getUsers {
-  Users(page: 0, limit: 4, filter: {name_has: "j", email_in: ["jisu@asd.com", "wooseok"]}, sort: updatedAt_asc) {
+  Users(page: 0, limit: 4, filter: {name_has: "a", email_in: ["mongo@gql.com", "gql@mongo.com"]}, sort: updatedAt_asc) {
     data {
       _id
       name
@@ -41,6 +43,7 @@ query UserByID {
   }
 }
 ```
+
 Result
 ```js
 // query getUsers
@@ -49,14 +52,14 @@ Result
     "Users": {
       "data": [
         {
-          "name": "jisu",
+          "name": "aaron",
           "_id": "5dc8aa758ac3cd40e7ea0c7f",
-          "email": "wooseok"
+          "email": "mongo@gql.com"
         },
         {
-          "name": "jisu",
+          "name": "ace",
           "_id": "5dc8aa7e34b45241582cbd52",
-          "email": "jisu@asd.com"
+          "email": "gql@mongo.com"
         }
       ],
       "page": 0,
@@ -69,26 +72,12 @@ Result
 {
   "data": {
     "User": {
-      "name": "jisu",
-      "email": "wooseok"
+      "name": "aaron",
+      "email": "mongo@gql.com"
     }
   }
 }
 ```
-
-### Prerequisites
-
-This module based on Express, apollo-server and MongoDB with Mongoosejs
-
-```js
-"apollo-server": "^2.9.7",
-"apollo-server-express": "^2.9.7",
-"express": "^4.17.1",
-"glob": "^7.1.6",
-"graphql": "^14.5.8",
-"winston": "^3.2.1"
-```
-
 ### Installing
 
 ```
@@ -101,50 +90,28 @@ Or
 $ yarn add mongo-to-gql
 ```
 
-## Running the tests
 
-Mongo model with mongoosejs
+### Methods
 
-user.ts in src/model
+*** `let's start!` ***
+1. Start with mongo connection but it doesn't matter ;)
+2. Do `const mongoToGQL = new MongoToGQL();` => initialize library (before generate)
+3. Execute the `mongoToGQL.generate(model folder path, mutation folder path);` method for auto generate and it's a asynchronous method
+4. You can customize your logger with winston lib, ex) `mongoToGQL.generate('dist/model', 'dist/mutation', logger);` => this is optional
+5. `mongoToGQL.typeDefs` is a public method, so you can using it to lookup GQL definition data
+6. Also, `mongoToGQL.resolvers` is a public method.
+7. `const gqlServer = new ApolloServer(mongoToGQL.converted());` initialize your GQL server with apollo. `converted()` method will join the typeDefs and resolvers as an object.
+8. `gqlServer.applyMiddleware({ app });` apply into your express app! After your express server executed, apollo server will make a router in your `/graphql`
+
 ```js
-import mongoose, { Schema, Document } from "mongoose";
-import * as Product from './Product';
-
-type UserDocument = Document & {
-    email: string;
-    name: string;
-    password: string;
-    address: string;
-    picture: string[];
-    product: string[];
-};
-
-export const gqlOption = {
-    Populate: ["product", "test"]
-}
-
-export const schema: any = new Schema({
-    email: { type: String, unique: true },
-    smaple: { type: Number },
-    today: { type: Date, default: Date.now },
-    name: String,
-    password: String,
-    address: String,
-    picture: String,
-    product: { type: Schema.Types.ObjectId, ref: 'Product' },
-    test: { type: Schema.Types.ObjectId, ref: "Test" }
-}, { timestamps: true });
-
-export const model = mongoose.model<UserDocument>("User", schema);
-
-```
-
-
-and after mongo connection in app.ts
-```js
-import mongoose from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
 import MongoToGQL from 'mongo-to-gql'
+
+const mongoOptions = {
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+    useNewUrlParser: true
+}
 
 const connectWithRetry = (mongoUrl: string) => {
     return mongoose.connect(mongoUrl, mongoOptions, function (err) {
@@ -161,9 +128,9 @@ const connectWithRetry = (mongoUrl: string) => {
 connectWithRetry(MONGODB_URI).then(async () => {
     try {
         const mongoToGQL = new MongoToGQL();
-        // model path and mutation path 
-        // todo: make this without __dirname
-        await mongoToGQL.generate(`${__dirname}/model`, `${__dirname}/mutation`);
+        // model path and mutation path
+        // this must be your build folder
+        await mongoToGQL.generate('dist/model', 'dist/mutation');
 
         // you can see the results from this console.log
         // console.log("GQL converting start =>> ", mongoToGQL.typeDefs, "\n<<= GQL converting done")
@@ -178,11 +145,96 @@ connectWithRetry(MONGODB_URI).then(async () => {
 })
 ```
 
-mutation sample (in mutation folder) src/mutation/addUser.ts
+
+## Examples
+
+Mongo model with mongoosejs
+
+src/model/user.model.ts
+* schema and model are mandatory
 ```js
+import mongoose, { Schema, Document } from "mongoose";
+
+type UserDocument = Document & {
+    email: string;
+    name: string;
+    password: string;
+    address: string;
+    picture: string[];
+    products: string[];
+    test: string;
+};
+
+export const gqlOption = {
+    Populate: ["products", "test"]
+}
+
+export const schema: any = new Schema({
+    email: { type: String, unique: true },
+    name: String,
+    password: String,
+    address: String,
+    picture: String,
+    products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+    test: { type: Schema.Types.ObjectId, ref: "Test" }
+}, { timestamps: true }); 
+
+export const model = mongoose.model<UserDocument>("User", schema);
+
+```
+
+model auto-generate results will be 
+*** `params` ***
+* page: pagination
+* limit: page per
+* filter: each field name with in (array values are in data), has (regex), ne (array values are not in data); basic field name like `name` for finding exact data
+* sort: each field name with asc or desc
+
+*** `result` ***
+* data: result data object
+* page: current page
+* total: result data count
+```js
+query getUsers {
+  Users(page: 0, limit: 4, filter: {name_has: "a", email_in: ["mongo@gql.com", "gql@mongo.com"]}, sort: updatedAt_asc) {
+    data {
+      _id
+      name
+      email
+    }
+    page
+    total
+  }
+}
+
+query UserByID {
+  User(_id: "5dc8aa758ac3cd40e7ea0c7f") {
+    name
+    email
+  }
+}
+```
+
+
+
+mutation sample (in mutation folder) src/mutation/addUser.ts
+* `mutationName`, `inputType` and `resolver` are mandatory! Try to use `Mutation` interface, it'll be easier.
+* Your mutation function name will save as starting with a lowercase.
+* Make this sure all extra input types must be declared! ex) ProductInputType
+* The resolver should be an async method, but it's doesn't matter.
+```js
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import * as User from "../model/user.model";
+import * as Product from "../model/product.model";
+import * as Test from "../model/test.model";
 import { Mutation } from 'mongo-to-gql'
 
-export class AddUser implements Mutation {
+class ReturnType {
+    done: boolean = false;
+    error: any;
+}
+class AddUser implements Mutation {
     mutationName: string = "AddUser"
 
     public inputType = {
@@ -190,7 +242,7 @@ export class AddUser implements Mutation {
         email: "String",
         address: "String",
         password: "String",
-        product: "ProductInputType",
+        product: "[ProductInputType]",
         test: "TestInputType"
     }
 
@@ -203,12 +255,12 @@ export class AddUser implements Mutation {
         text: "String"
     }
 
-    public resolver = (_: any, { ...input }): Promise<any> => {
+    public resolver = (_: any, { input }: any): Promise<ReturnType> => {
         return new Promise((resolve, reject) => {
             bcrypt.hash(input.password, 10, async function (err, hash) {
                 try {
                     if (err) {
-                        reject('bcrypt error');
+                        resolve({ done: false, error: "bycrypt error" })
                     }
                     // Store hash in your password DB.
                     const newProduct = await Product.model.create(input.product)
@@ -218,8 +270,8 @@ export class AddUser implements Mutation {
                         address: input.address,
                         email: input.email,
                         password: hash,
-                        picture: this.getAvatar(input.email),
-                        product: newProduct,
+                        picture: getAvatar(input.email),
+                        products: newProduct,
                         test: newTest
                     })
                     resolve({
@@ -228,20 +280,47 @@ export class AddUser implements Mutation {
                     })
                 } catch (error) {
                     if (error.code === 11000) {
-                        reject('email already used');
+                        resolve({ done: false, error: 'email already used' });
                     }
                     else {
-                        reject(`${error} : bad happend while we are saving user data`);
+                        resolve({ done: false, error: `${error} : bad happend while we are saving user data`'email already used' });
                     }
                 }
 
             });
         })
     }
+}
 
-    private getAvatar(Email: string, size: number = 200): string {
-        const md5 = crypto.createHash("md5").update(Email).digest("hex");
-        return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
+const getAvatar = (Email: string, size: number = 200): string => {
+    const md5 = crypto.createHash("md5").update(Email).digest("hex");
+    return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
+}
+
+export default AddUser
+```
+
+
+mutation auto-generate results will be
+*** `params` ***
+* input: mutation class's inputType as a gql definition
+
+*** `result` ***
+* done: boolean for result
+* error: error as a JSON type
+```js
+mutation AddUser{
+	addUser(input: {
+        name:"aaron", 
+        email: "aaron@aaron.com", 
+        password: "thisispassword", 
+        product: [
+            { name: "starseed", detail: "this is good!" },
+            { name: "Good seed", detail: "You'll love it!" }
+        ]
+    }) {
+        done
+        error
     }
 }
 ```
