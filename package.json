@@ -1,11 +1,17 @@
 {
   "name": "mongo-to-gql",
+  "email": "aaronwoolee95@gmail.com",
   "version": "1.7.0",
   "description": "mongodb model to graphql for apollo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Aaron Lee",
-  "repository": "aaronwlee/Mongo-To-GQL",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/aaronwlee/Mongo-To-GQL.git"
+  },
+  "homepage": "https://github.com/aaronwlee/Mongo-To-GQL#readme",
+  "keywords": ["mongo", "mongotogql", "mongoose", "graphql", "mongodb", "mongodb to graphql", "mutation", "query", "mongoose schema", "mongoose graphql"],
   "license": "MIT",
   "scripts": {
     "build": "npm tsc",

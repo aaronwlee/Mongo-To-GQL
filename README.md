@@ -339,6 +339,7 @@ mutation AddUser{
 
 ## Authors
 
+* ***Eric Xizheng Ding*** - *Origin work* - [dingxizheng](https://github.com/dingxizheng/model_to_graphql)
 * ***Aaron Wooseok Lee*** - *Initial work* - [aaronwlee](https://github.com/aaronwlee)
 
 ## License
