@@ -93,7 +93,9 @@ $ yarn add mongo-to-gql
 
 ### Methods
 
-*** `let's start!` ***
+<br />
+
+*** let's start! ***
 1. Start with mongo connection but it doesn't matter ;)
 2. Do `const mongoToGQL = new MongoToGQL();` => initialize library (before generate)
 3. Execute the `mongoToGQL.generate(model folder path, mutation folder path);` method for auto generate and it's a asynchronous method
@@ -145,10 +147,15 @@ connectWithRetry(MONGODB_URI).then(async () => {
 })
 ```
 
+<br />
+<br />
 
 ## Examples
 
 Mongo model with mongoosejs
+
+<br />
+<br />
 
 src/model/user.model.ts
 * schema and model are mandatory
@@ -182,15 +189,19 @@ export const schema: any = new Schema({
 export const model = mongoose.model<UserDocument>("User", schema);
 
 ```
+<br />
+<br />
 
-model auto-generate results will be 
-*** `params` ***
+model auto-generate results will be
+<br />
+
+*** params ***
 * page: pagination
 * limit: page per
 * filter: each field name with in (array values are in data), has (regex), ne (array values are not in data); basic field name like `name` for finding exact data
 * sort: each field name with asc or desc
 
-*** `result` ***
+*** result ***
 * data: result data object
 * page: current page
 * total: result data count
@@ -214,8 +225,8 @@ query UserByID {
   }
 }
 ```
-
-
+<br />
+<br />
 
 mutation sample (in mutation folder) src/mutation/addUser.ts
 * `mutationName`, `inputType` and `resolver` are mandatory! Try to use `Mutation` interface, it'll be easier.

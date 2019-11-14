@@ -228,9 +228,6 @@ class MongoToGQL {
                 this.modelToDefaultQuery(imported);
                 this.modelToGetALLQuery(imported);
             });
-            Object.keys(mongoose_1.default.connection.models).forEach(name => {
-                delete mongoose_1.default.connection.models[name];
-            });
             this.typeQueryDefs += `} \n`;
             this.typeDefs += this.typeQueryDefs;
             const mutationPathList = yield this.readMutationList(path_1.default.join(process.cwd(), mutationFolderPath), type);
