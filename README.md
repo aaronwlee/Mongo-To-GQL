@@ -3,12 +3,24 @@
 
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 
-## Getting Started
+## Installing
+
+```
+$ npm i mongo-to-gql
+```
+
+Or
+
+```
+$ yarn add mongo-to-gql
+```
+
+# Getting Started
 Mongo model basic
 
 * export const schema and const model in your mongo model file
 ex) src/model/user.model.ts
-```js
+```ts
 type UserDocument = Document & {
     email: string;
     name: string;
@@ -23,7 +35,7 @@ export const model = mongoose.model<UserDocument>("User", schema);
 ```
 
 After using our mongo-to-gql, you'll get auto-generated this queries and gql definitions
-```js
+```ts
 query getUsers {
   Users(page: 0, limit: 4, filter: {name_has: "a", email_in: ["mongo@gql.com", "gql@mongo.com"]}, sort: updatedAt_asc) {
     data {
@@ -45,7 +57,7 @@ query UserByID {
 ```
 
 Result
-```js
+```json
 // query getUsers
 {
   "data": {
@@ -78,34 +90,23 @@ Result
   }
 }
 ```
-### Installing
 
-```
-$ npm i mongo-to-gql
-```
+## Methods
 
-Or
+<br>
+** `let's start!` **      
+|** `Methods` **                   | Description                                                                                                                                    |
+|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+|`mongoose.connect(mongoUrl, mongoOptions,` | Start with mongo connection but it doesn't matter ;)                                                                                  |
+|`const mongoToGQL = MongoToGQL(<Option Logger>);`     | Initialize library (before generate)                                                                                       |
+|`mongoToGQL.generate('dist/model', 'dist/mutation');`| Execute the `mongoToGQL.generate(<modelFolderPath>, <mutationFolderPath>);` method for auto generate and it's a asynchronous method |
+|`mongoToGQL.typeDefs`| `mongoToGQL.typeDefs` is a public method, so you can using it to lookup GQL definition data                                                                 |
+|`mongoToGQL.resolvers`| Also, `mongoToGQL.resolvers` is a public method.                                                                                                           |
+|`const gqlServer = new ApolloServer(mongoToGQL.converted());`| Initialize your GQL server with apollo. `converted()` method will join the typeDefs and resolvers as an object.     |
+|`const gqlServer = new ApolloServer({typeDefs: mongoToGQL.typeDefs, resolvers: mongoToGQL.resolvers}) | Alternatively                                                              |
+|`gqlServer.applyMiddleware({ app });`| Apply into your express app! After your express server executed, apollo server will make a router in your `/graphql`                        |
 
-```
-$ yarn add mongo-to-gql
-```
-
-
-### Methods
-
-<br />
-
-*** let's start! ***
-1. Start with mongo connection but it doesn't matter ;)
-2. Do `const mongoToGQL = new MongoToGQL();` => initialize library (before generate)
-3. Execute the `mongoToGQL.generate(model folder path, mutation folder path);` method for auto generate and it's a asynchronous method
-4. You can customize your logger with winston lib, ex) `mongoToGQL.generate('dist/model', 'dist/mutation', logger);` => this is optional
-5. `mongoToGQL.typeDefs` is a public method, so you can using it to lookup GQL definition data
-6. Also, `mongoToGQL.resolvers` is a public method.
-7. `const gqlServer = new ApolloServer(mongoToGQL.converted());` initialize your GQL server with apollo. `converted()` method will join the typeDefs and resolvers as an object.
-8. `gqlServer.applyMiddleware({ app });` apply into your express app! After your express server executed, apollo server will make a router in your `/graphql`
-
-```js
+```ts
 import { ApolloServer } from 'apollo-server-express';
 import MongoToGQL from 'mongo-to-gql'
 
@@ -129,7 +130,7 @@ const connectWithRetry = (mongoUrl: string) => {
 
 connectWithRetry(MONGODB_URI).then(async () => {
     try {
-        const mongoToGQL = new MongoToGQL();
+        const mongoToGQL = MongoToGQL();
         // model path and mutation path
         // this must be your build folder
         await mongoToGQL.generate('dist/model', 'dist/mutation');
@@ -147,19 +148,19 @@ connectWithRetry(MONGODB_URI).then(async () => {
 })
 ```
 
-<br />
-<br />
+<br>
+<br>
 
 ## Examples
 
 Mongo model with mongoosejs
 
-<br />
-<br />
+<br>
+<br>
 
-src/model/user.model.ts
+`src/model/user.model.ts`
 * schema and model are mandatory
-```js
+```ts
 import mongoose, { Schema, Document } from "mongoose";
 
 type UserDocument = Document & {
@@ -189,23 +190,25 @@ export const schema: any = new Schema({
 export const model = mongoose.model<UserDocument>("User", schema);
 
 ```
-<br />
-<br />
+<br>
+<br>
 
 model auto-generate results will be
-<br />
+<br>
 
-*** params ***
-* page: pagination
-* limit: page per
-* filter: each field name with in (array values are in data), has (regex), ne (array values are not in data); basic field name like `name` for finding exact data
-* sort: each field name with asc or desc
+|** `params` **| Description   |
+|-------------|----------------|
+| page    | Pagination                                                                                                                                              |
+| limit   | page per                                                                                                                                                |
+| filter  | each field name with in (array values are in data), has (regex), ne (array values are not in data); basic field name like `name` for finding exact data |
+| sort    | each field name with asc or desc                                                                                                                        |
 
-*** result ***
-* data: result data object
-* page: current page
-* total: result data count
-```js
+|** `result` **| Description      |
+|--------------|------------------|
+| data  | result data object      |
+| page  | current page            |
+| total | result data count       |
+```ts
 query getUsers {
   Users(page: 0, limit: 4, filter: {name_has: "a", email_in: ["mongo@gql.com", "gql@mongo.com"]}, sort: updatedAt_asc) {
     data {
@@ -225,21 +228,22 @@ query UserByID {
   }
 }
 ```
-<br />
-<br />
+<br>
+<br>
 
-mutation sample (in mutation folder) src/mutation/addUser.ts
-* `mutationName`, `inputType` and `resolver` are mandatory! Try to use `Mutation` interface, it'll be easier.
-* Your mutation function name will save as starting with a lowercase.
-* Make this sure all extra input types must be declared! ex) ProductInputType
-* The resolver should be an async method, but it's doesn't matter.
-```js
+|mutation sample (in mutation folder) src/mutation/addUser.ts                                                           |
+|-----------------------------------------------------------------------------------------------------------------------|
+| `mutationName`, `inputType` and `resolver` are mandatory! Try to use `Mutation` interface, it'll be easier.           |
+| Your mutation function name will save as starting with a lowercase.                                                   |
+| Make this sure all extra input types must be declared! ex) ProductInputType                                           |
+| The resolver should be an async method, but it's doesn't matter.                                                      |
+```ts
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import * as User from "../model/user.model";
 import * as Product from "../model/product.model";
 import * as Test from "../model/test.model";
-import { Mutation } from 'mongo-to-gql'
+import { Mutation, GQLt } from 'mongo-to-gql'
 
 class ReturnType {
     done: boolean = false;
@@ -249,21 +253,21 @@ class AddUser implements Mutation {
     mutationName: string = "AddUser"
 
     public inputType = {
-        name: "String",
-        email: "String",
-        address: "String",
-        password: "String",
-        product: "[ProductInputType]",
-        test: "TestInputType"
+        name: GQLt.String,      // same as "String"
+        email: GQLt.String,
+        address: GQLt.String,
+        password: GQLt.String,
+        product: GQLt.CustomArray("ProductInputType"),      // same as "[ProductInputType]"
+        test: GQLt.Custom("TestInputType")
     }
 
     public ProductInputType = {
-        name: "String",
-        detail: "String"
+        name: GQLt.String,
+        detail: GQLt.String
     }
 
     public TestInputType = {
-        text: "String"
+        text: GQLt.String
     }
 
     public resolver = (_: any, { input }: any): Promise<ReturnType> => {
@@ -313,13 +317,17 @@ export default AddUser
 
 
 mutation auto-generate results will be
-*** `params` ***
-* input: mutation class's inputType as a gql definition
+|** `params` **| Description   |
+|-------------|----------------|
+| input    | mutation class's inputType as a gql definition |
 
-*** `result` ***
-* done: boolean for result
-* error: error as a JSON type
-```js
+
+|** `result` **| Description      |
+|--------------|------------------|
+| done  | boolean for result      |
+| error  | error as a JSON type    |
+
+```ts
 mutation AddUser{
 	addUser(input: {
         name:"aaron", 

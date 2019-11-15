@@ -26,7 +26,7 @@ const options: LoggerOptions = {
 
 const logger: any = createLogger(options);
 logger.stream = {
-    write: function (message:any , encoding: any) {
+    write: function (message:any) {
         logger.info(message.replace('\n', ''));
     }
 }
