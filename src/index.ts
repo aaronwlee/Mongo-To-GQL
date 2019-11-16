@@ -58,6 +58,9 @@ export function executeApolloServer(app: any, modelFolderPath: string, mutationF
         .then(converted => {
             new ApolloServer(converted).applyMiddleware({ app })
         })
+        .catch(error => {
+            logger.error("mongo-to-gql failed ", error)
+        })
 }
 
 export default (logger: Logger = defaultlogger) => new MongoToGQL(logger);

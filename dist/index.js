@@ -48,6 +48,9 @@ function executeApolloServer(app, modelFolderPath, mutationFolderPath, type = 'j
     new mongoToGQL_1.default(logger).generate(modelFolderPath, mutationFolderPath, type)
         .then(converted => {
         new apollo_server_express_1.ApolloServer(converted).applyMiddleware({ app });
+    })
+        .catch(error => {
+        logger.error("mongo-to-gql failed ", error);
     });
 }
 exports.executeApolloServer = executeApolloServer;
