@@ -235,7 +235,6 @@ class MongoToGQL {
 
         this.typeDefs += this.typeMutationDefs;
         this.logger.debug('GQL autogenerater - complete')
-        return true
     }
 }
 

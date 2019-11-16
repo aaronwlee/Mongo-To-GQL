@@ -98,13 +98,12 @@ Result
 
 |`Methods`                   | Description                                                                                                                                          |
 |----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-|`mongoose.connect(mongoUrl, mongoOptions,` | Start with mongo connection but it doesn't matter ;)                                                                                  |
-|`const mongoToGQL = MongoToGQL(<Option Logger>);`     | Initialize library (before generate)                                                                                       |
-|`mongoToGQL.generate('dist/model', 'dist/mutation');`| Execute the `mongoToGQL.generate(<modelFolderPath>, <mutationFolderPath>);` method for auto generate and it's a asynchronous method |
+|`const mongoToGQL = MongoToGQL(<Option Logger>)`     | Initialize library (before generate)                                                                                       |
+|`mongoToGQL.generate('dist/model', 'dist/mutation')`| Execute the `mongoToGQL.generate(<modelFolderPath>, <mutationFolderPath>);` method for auto generate and it's a asynchronous method |
 |`mongoToGQL.typeDefs`| `mongoToGQL.typeDefs` is a public method, so you can using it to lookup GQL definition data                                                                 |
 |`mongoToGQL.resolvers`| Also, `mongoToGQL.resolvers` is a public method.                                                                                                           |
-|`const gqlServer = new ApolloServer(mongoToGQL.converted());`| Initialize your GQL server with apollo. `converted()` method will join the typeDefs and resolvers as an object.     |
-|`const gqlServer = new ApolloServer({typeDefs: mongoToGQL.typeDefs, resolvers: mongoToGQL.resolvers}) | Alternatively                                                              |
+|`const gqlServer = new ApolloServer(mongoToGQL.converted())`| Initialize your GQL server with apollo. `converted()` method will join the typeDefs and resolvers as an object.     |
+|`const gqlServer = new ApolloServer({typeDefs: mongoToGQL.typeDefs, resolvers: mongoToGQL.resolvers})` | Alternatively                                                              |
 |`gqlServer.applyMiddleware({ app });`| Apply into your express app! After your express server executed, apollo server will make a router in your `/graphql`                        |
 
 ```ts
@@ -317,7 +316,8 @@ export default AddUser
 ```
 
 
-mutation auto-generate results will be
+### mutation auto-generate results will be
+
 |`params` | Description   |
 |-------------|----------------|
 | input    | mutation class's inputType as a gql definition |
