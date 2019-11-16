@@ -186,8 +186,9 @@ Mongo model with mongoosejs
 <br>
 <br>
 
-`src/model/user.model.ts`
-* schema and model are mandatory
+### Model sample (in model folder) 
+> **Note** - export schema and model are mandatory
+> **Path** - src/model/user.model.ts
 ```ts
 import mongoose, { Schema, Document } from "mongoose";
 
@@ -205,6 +206,7 @@ export const gqlOption = {
     Populate: ["products", "test"]
 }
 
+// required name with schema
 export const schema: any = new Schema({
     email: { type: String, unique: true },
     name: String,
@@ -215,6 +217,7 @@ export const schema: any = new Schema({
     test: { type: Schema.Types.ObjectId, ref: "Test" }
 }, { timestamps: true }); 
 
+// required name with model
 export const model = mongoose.model<UserDocument>("User", schema);
 
 ```
@@ -260,7 +263,7 @@ query UserByID {
 <br>
 
 ### Mutation sample (in mutation folder)
-> **Note!** - src/mutation/addUser.ts
+> **Path** - src/mutation/addUser.ts
 - `mutationName`, `inputType` and `resolver` are mandatory! Try to use `Mutation` interface, it'll be easier.
 - Your mutation function name will save as starting with a lowercase.   
 - Make this sure all extra input types must be declared! ex) ProductInputType
