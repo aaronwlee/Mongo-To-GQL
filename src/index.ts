@@ -11,7 +11,7 @@ export class ReturnType {
 export interface Mutation {
     mutationName: string;
     inputType: {};
-    resolver: Promise<ReturnType>;
+    resolver: (parent?: any, args?: any, context?: any, info?: any) => Promise<ReturnType>;
 }
 
 export const GQLt = {
