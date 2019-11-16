@@ -3,19 +3,17 @@ import { Logger } from "winston";
 import defaultlogger from './utils/logger'
 import { ApolloServer } from "apollo-server-express";
 
+export class ReturnType {
+    done: boolean = false;
+    error: any;
+}
+
 export interface Mutation {
     mutationName: string;
     inputType: {};
-    resolver: any;
+    resolver: Promise<ReturnType>;
 }
-[
-    "String", "String!", "[String]", "[String!]",
-    "Date", "Date!", "[Date]", "[Date!]",
-    "Int", "Int!", "[Int]", "[Int!]",
-    "ID", "ID!", "[ID]", "[ID!]",
-    "Float", "Float!", "[Float]", "[Float!]",
-    "Boolean", "Boolean!", "[Boolean]", "[Boolean!]"
-]
+
 export const GQLt = {
     String: "String",
     StringRequire: "String!",
