@@ -94,8 +94,9 @@ Result
 ## Methods
 
 <br>
-** `let's start!` **      
-|** `Methods` **                   | Description                                                                                                                                    |
+
+
+|`Methods`                   | Description                                                                                                                                          |
 |----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 |`mongoose.connect(mongoUrl, mongoOptions,` | Start with mongo connection but it doesn't matter ;)                                                                                  |
 |`const mongoToGQL = MongoToGQL(<Option Logger>);`     | Initialize library (before generate)                                                                                       |
@@ -196,18 +197,18 @@ export const model = mongoose.model<UserDocument>("User", schema);
 model auto-generate results will be
 <br>
 
-|** `params` **| Description   |
+| `params` | Description      |
 |-------------|----------------|
 | page    | Pagination                                                                                                                                              |
 | limit   | page per                                                                                                                                                |
 | filter  | each field name with in (array values are in data), has (regex), ne (array values are not in data); basic field name like `name` for finding exact data |
 | sort    | each field name with asc or desc                                                                                                                        |
 
-|** `result` **| Description      |
-|--------------|------------------|
-| data  | result data object      |
-| page  | current page            |
-| total | result data count       |
+| `result` | Description                                                                                    |
+|--------------|------------------------------------------------------------------------------------------|
+| data  | result data object                                                                             |
+| page  | current page                                                                                    |
+| total | result data count                                                                               |
 ```ts
 query getUsers {
   Users(page: 0, limit: 4, filter: {name_has: "a", email_in: ["mongo@gql.com", "gql@mongo.com"]}, sort: updatedAt_asc) {
@@ -317,12 +318,12 @@ export default AddUser
 
 
 mutation auto-generate results will be
-|** `params` **| Description   |
+|`params` | Description   |
 |-------------|----------------|
 | input    | mutation class's inputType as a gql definition |
 
 
-|** `result` **| Description      |
+| `result` | Description      |
 |--------------|------------------|
 | done  | boolean for result      |
 | error  | error as a JSON type    |
