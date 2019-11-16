@@ -107,45 +107,47 @@ Result
 |`gqlServer.applyMiddleware({ app });`| Apply into your express app! After your express server executed, apollo server will make a router in your `/graphql`                        |
 
 ```ts
+import MongoToGQL from 'mongo-to-gql';
+import express from "express";
 import { ApolloServer } from 'apollo-server-express';
-import MongoToGQL from 'mongo-to-gql'
 
-const mongoOptions = {
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-    useNewUrlParser: true
-}
+const app = express();
 
-const connectWithRetry = (mongoUrl: string) => {
-    return mongoose.connect(mongoUrl, mongoOptions, function (err) {
-        if (err) {
-            console.log("MongoDB connection error. - retrying in 5 sec", err);
-            setTimeout(connectWithRetry, 5000);
-        }
-        else {
-            console.error("MongoDB successfully connected");
-        }
-    });
-};
+MongoToGQL().generate('dist/model', 'dist/mutation')
+  .then(convered => {
+    new ApolloServer(converted).applyMiddleware({ app });
+  })
+  .catch (error => {
+    console.error("GQL converting error!\n", error);
+    process.exit(1);
+  })
+```
+`New!`
+```ts
+import { executeApolloServer } from 'mongo-to-gql';
+import express from "express";
 
-connectWithRetry(MONGODB_URI).then(async () => {
-    try {
-        const mongoToGQL = MongoToGQL();
-        // model path and mutation path
-        // this must be your build folder
-        await mongoToGQL.generate('dist/model', 'dist/mutation');
+const app = express();
 
-        // you can see the results from this console.log
-        // console.log("GQL converting start =>> ", mongoToGQL.typeDefs, "\n<<= GQL converting done")
-
-        const gqlServer = new ApolloServer(mongoToGQL.converted());
-
-        gqlServer.applyMiddleware({ app });
-    } catch (error) {
-        console.error("GQL converting error!\n", error)
-        process.exit(1);
-    }
-})
+executeApolloServer(app, 'dist/model', 'dist/mutation');
+```
+`Old!`
+```ts
+const mongoToGql = MongoToGQL()
+mongoToGql.generate('dist/model', 'dist/mutation')
+  .then(converted => {
+    const gqlServer = new ApolloServer(converted);
+    // or
+    const gqlServer = new ApolloServer(mongoToGql.converted()); 
+    // or
+    const gqlServer = new ApolloServer({ typeDefs: mongoToGql.typeDefs, resolvers: mongoToGql.resolvers });
+    
+    gqlServer.applyMiddleware({ app });
+  })
+  .catch(error => {
+      console.error("GQL converting error!\n", error)
+      process.exit(1);
+  })
 ```
 
 <br>
