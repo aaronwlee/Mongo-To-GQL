@@ -1,9 +1,13 @@
 import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
+export declare class ReturnType {
+    done: boolean;
+    error: any;
+}
 export interface Mutation {
     mutationName: string;
     inputType: {};
-    resolver: any;
+    resolver: Promise<ReturnType>;
 }
 export declare const GQLt: {
     String: string;

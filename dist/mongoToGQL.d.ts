@@ -17,6 +17,6 @@ declare class MongoToGQL {
     private modelToGetALLQuery;
     private mutationToReturnTypeDefinition;
     private modelToReturnTypeDefinition;
-    generate(modelFolderPath: string, mutationFolderPath: string, type?: string): Promise<any>;
+    generate(modelFolderPath: string, mutationFolderPath?: string, type?: string): Promise<any>;
 }
 export default MongoToGQL;

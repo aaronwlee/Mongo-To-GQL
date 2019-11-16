@@ -207,17 +207,19 @@ class MongoToGQL {
             });
             this.typeQueryDefs += `} \n`;
             this.typeDefs += this.typeQueryDefs;
-            const mutationPathList = yield this.readMutationList(path_1.default.join(process.cwd(), mutationFolderPath), type);
-            yield Promise.all(mutationPathList.map((mutationPath) => __awaiter(this, void 0, void 0, function* () {
-                const Mutation = require(path_1.default.resolve(mutationPath)).default;
-                const mutation = new Mutation();
-                yield this.mutationToInputDefinition(mutation, "inputType");
-                this.mutationToReturnTypeDefinition(mutation.mutationName);
-                this.typeMutationDefs += `\t${convertCap_1.convertFirstLowercase(mutation.mutationName)}(input: ${convertCap_1.convertFirstUppercase(mutation.mutationName)}InputType!): ${convertCap_1.convertFirstUppercase(mutation.mutationName)}ReturnType\n`;
-                this.resolvers.Mutation[convertCap_1.convertFirstLowercase(mutation.mutationName)] = mutation.resolver;
-            })));
-            this.typeMutationDefs += `} \n`;
-            this.typeDefs += this.typeMutationDefs;
+            if (mutationFolderPath) {
+                const mutationPathList = yield this.readMutationList(path_1.default.join(process.cwd(), mutationFolderPath), type);
+                yield Promise.all(mutationPathList.map((mutationPath) => __awaiter(this, void 0, void 0, function* () {
+                    const Mutation = require(path_1.default.resolve(mutationPath)).default;
+                    const mutation = new Mutation();
+                    yield this.mutationToInputDefinition(mutation, "inputType");
+                    this.mutationToReturnTypeDefinition(mutation.mutationName);
+                    this.typeMutationDefs += `\t${convertCap_1.convertFirstLowercase(mutation.mutationName)}(input: ${convertCap_1.convertFirstUppercase(mutation.mutationName)}InputType!): ${convertCap_1.convertFirstUppercase(mutation.mutationName)}ReturnType\n`;
+                    this.resolvers.Mutation[convertCap_1.convertFirstLowercase(mutation.mutationName)] = mutation.resolver;
+                })));
+                this.typeMutationDefs += `} \n`;
+                this.typeDefs += this.typeMutationDefs;
+            }
             this.logger.debug('GQL autogenerater - complete');
             return this.converted();
         });

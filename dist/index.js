@@ -6,14 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoToGQL_1 = __importDefault(require("./mongoToGQL"));
 const logger_1 = __importDefault(require("./utils/logger"));
 const apollo_server_express_1 = require("apollo-server-express");
-[
-    "String", "String!", "[String]", "[String!]",
-    "Date", "Date!", "[Date]", "[Date!]",
-    "Int", "Int!", "[Int]", "[Int!]",
-    "ID", "ID!", "[ID]", "[ID!]",
-    "Float", "Float!", "[Float]", "[Float!]",
-    "Boolean", "Boolean!", "[Boolean]", "[Boolean!]"
-];
+class ReturnType {
+    constructor() {
+        this.done = false;
+    }
+}
+exports.ReturnType = ReturnType;
 exports.GQLt = {
     String: "String",
     StringRequire: "String!",
