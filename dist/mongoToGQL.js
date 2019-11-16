@@ -219,7 +219,7 @@ class MongoToGQL {
             this.typeMutationDefs += `} \n`;
             this.typeDefs += this.typeMutationDefs;
             this.logger.debug('GQL autogenerater - complete');
-            return this.converted;
+            return this.converted();
         });
     }
 }
