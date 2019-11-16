@@ -95,24 +95,37 @@ Result
 
 <br>
 
-`executeApolloServer(<express app!>, <built model path!>, <built mutation path!>, <type? js || ts>, <winston?>)` 
+```ts
+executeApolloServer(<express app!>, <built model path!>, <built mutation path!>, <type? "js" || "ts">, <Optional winston logger?>)
+```
 - Initializing, building and connect apollo server
 - After your express server executed, apollo server will make a router in your `/graphql`
 
-`MongoToGQL(<Option Logger>)` 
-- Initialize library (before generate) 
-`mongoToGQL.generate('dist/model', 'dist/mutation')` 
+```ts
+MongoToGQL(<Optional winston logger?>)
+``` 
+- Initialize library (before generate)
+
+```ts
+mongoToGQL.generate('dist/model', 'dist/mutation')
+``` 
 - Method for auto generate and it's a asynchronous method. It resolves `converted()` data. 
-`const gqlServer = new ApolloServer(mongoToGQL.converted())` 
+
+```ts
+const gqlServer = new ApolloServer(mongoToGQL.converted())
+```
 - Initialize your GQL server with apollo. `converted()` method will join the typeDefs and resolvers as an object.
 
-`const gqlServer = new ApolloServer({typeDefs: mongoToGQL.typeDefs, resolvers: mongoToGQL.resolvers})` 
+```ts
+const gqlServer = new ApolloServer({typeDefs: mongoToGQL.typeDefs, resolvers: mongoToGQL.resolvers})
+```
 - Alternatively
-`mongoToGQL.typeDefs` 
-- It is a public method, so you can using it to lookup GQL definition data
-`mongoToGQL.resolvers` 
-- Also, It is a public method. 
-`gqlServer.applyMiddleware({ app });` 
+- `mongoToGQL.typeDefs` is a public method, so you can using it to lookup GQL definition data
+- `mongoToGQL.resolvers`  Also, It is a public method. 
+
+```ts
+gqlServer.applyMiddleware({ app });
+```
 - Apply into your express app! 
 - After your express server executed, apollo server will make a router in your `/graphql`
 
