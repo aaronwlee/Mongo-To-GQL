@@ -259,12 +259,13 @@ query UserByID {
 <br>
 <br>
 
-|mutation sample (in mutation folder) src/mutation/addUser.ts                                                           |
+### `Mutation sample (in mutation folder) src/mutation/addUser.ts`
 |-----------------------------------------------------------------------------------------------------------------------|
-| `mutationName`, `inputType` and `resolver` are mandatory! Try to use `Mutation` interface, it'll be easier.           |
-| Your mutation function name will save as starting with a lowercase.                                                   |
-| Make this sure all extra input types must be declared! ex) ProductInputType                                           |
-| The resolver should be an async method, but it's doesn't matter.                                                      |
+- `mutationName`, `inputType` and `resolver` are mandatory! Try to use `Mutation` interface, it'll be easier.
+- Your mutation function name will save as starting with a lowercase.   
+- Make this sure all extra input types must be declared! ex) ProductInputType
+- The resolver should be an async method, but it's doesn't matter.
+
 ```ts
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
