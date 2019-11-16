@@ -188,6 +188,7 @@ Mongo model with mongoosejs
 
 ### Model sample (in model folder) 
 > **Note** - export schema and model are mandatory
+
 > **Path** - src/model/user.model.ts
 ```ts
 import mongoose, { Schema, Document } from "mongoose";
