@@ -129,6 +129,17 @@ gqlServer.applyMiddleware({ app });
 - Apply into your express app! 
 - After your express server executed, apollo server will make a router in your `/graphql`
 
+`New!`
+```ts
+import { executeApolloServer } from 'mongo-to-gql';
+import express from "express";
+
+const app = express();
+
+executeApolloServer(app, 'dist/model', 'dist/mutation');
+```
+
+`Bygone`
 ```ts
 import MongoToGQL from 'mongo-to-gql';
 import express from "express";
@@ -145,15 +156,7 @@ MongoToGQL().generate('dist/model', 'dist/mutation')
     process.exit(1);
   })
 ```
-`New!`
-```ts
-import { executeApolloServer } from 'mongo-to-gql';
-import express from "express";
 
-const app = express();
-
-executeApolloServer(app, 'dist/model', 'dist/mutation');
-```
 `Old!`
 ```ts
 const mongoToGql = MongoToGQL()
