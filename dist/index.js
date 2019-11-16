@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoToGQL_1 = __importDefault(require("./mongoToGQL"));
 const logger_1 = __importDefault(require("./utils/logger"));
+const apollo_server_express_1 = require("apollo-server-express");
 [
     "String", "String!", "[String]", "[String!]",
     "Date", "Date!", "[Date]", "[Date!]",
@@ -43,5 +44,12 @@ exports.GQLt = {
     CustomArray: (custom) => `[${custom}]`,
     CustomArrayRequire: (custom) => `[${custom}!]`,
 };
+function executeApolloServer(app, modelFolderPath, mutationFolderPath, type = 'js', logger = logger_1.default) {
+    new mongoToGQL_1.default(logger).generate(modelFolderPath, mutationFolderPath, type)
+        .then(converted => {
+        new apollo_server_express_1.ApolloServer(converted).applyMiddleware({ app });
+    });
+}
+exports.executeApolloServer = executeApolloServer;
 exports.default = (logger = logger_1.default) => new mongoToGQL_1.default(logger);
 //# sourceMappingURL=index.js.map

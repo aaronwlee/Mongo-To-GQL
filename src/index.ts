@@ -1,6 +1,7 @@
 import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
 import defaultlogger from './utils/logger'
+import { ApolloServer } from "apollo-server-express";
 
 export interface Mutation {
     mutationName: string;
@@ -26,30 +27,37 @@ export const GQLt = {
     IntArray: "[Int]",
     IntArrayRequire: "[Int!]",
 
-    Date: "Date", 
-    DateRequire: "Date!", 
-    DateArray: "[Date]", 
+    Date: "Date",
+    DateRequire: "Date!",
+    DateArray: "[Date]",
     DateArrayRequire: "[Date!]",
-    
-    ID: "ID", 
-    IDRequire: "ID!", 
-    IDArray: "[ID]", 
+
+    ID: "ID",
+    IDRequire: "ID!",
+    IDArray: "[ID]",
     IDArrayRequire: "[ID!]",
 
-    Float: "Float", 
-    FloatRequire: "Float!", 
-    FloatArray: "[Float]", 
+    Float: "Float",
+    FloatRequire: "Float!",
+    FloatArray: "[Float]",
     FloatArrayRequire: "[Float!]",
 
-    Boolean: "Boolean", 
-    BooleanRequire: "Boolean!", 
-    BooleanArray: "[Boolean]", 
+    Boolean: "Boolean",
+    BooleanRequire: "Boolean!",
+    BooleanArray: "[Boolean]",
     BooleanRequireArray: "[Boolean!]",
 
     Custom: (custom: string) => custom,
     CustomRequire: (custom: string) => `${custom}!`,
     CustomArray: (custom: string) => `[${custom}]`,
     CustomArrayRequire: (custom: string) => `[${custom}!]`,
+}
+
+export function executeApolloServer(app: any, modelFolderPath: string, mutationFolderPath: string, type: string = 'js', logger: Logger = defaultlogger) {
+    new MongoToGQL(logger).generate(modelFolderPath, mutationFolderPath, type)
+        .then(converted => {
+            new ApolloServer(converted).applyMiddleware({ app })
+        })
 }
 
 export default (logger: Logger = defaultlogger) => new MongoToGQL(logger);
