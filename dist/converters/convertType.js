@@ -21,11 +21,11 @@ function convertType(type) {
             }
         }
         else {
-            return `[${convertCap_1.convertCapAndRemovePlural(type.path)}]`;
+            return `[${convertCap_1.convertCapAndRemovePlural(type.caster.options.ref)}]`;
         }
     }
     else if (type.instance === "ObjectID") {
-        return convertCap_1.convertCapAndRemovePlural(type.path);
+        return convertCap_1.convertCapAndRemovePlural(type.options.ref);
     }
     else {
         return type.instance;

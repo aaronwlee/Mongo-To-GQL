@@ -28,8 +28,7 @@ class MongoToGQL {
         this.typeMutationDefs = `\ntype Mutation {\n`;
         this.resolvers = {
             JSON: graphql_type_json_1.default,
-            Query: {},
-            Mutation: {}
+            Query: {}
         };
         this.converted = () => ({ typeDefs: apollo_server_express_1.gql(this.typeDefs), resolvers: this.resolvers });
         this.logger = null;
@@ -71,7 +70,7 @@ class MongoToGQL {
                 reject(`path: '${mutationFolderPath}/*.${type}' - found 0 files`);
             }
             else {
-                this.logger.debug(`GQL autogenerater - found ${modelPathList.length} models`);
+                this.logger.debug(`GQL autogenerater - found ${modelPathList.length} mutations`);
                 resolve(modelPathList);
             }
         });
@@ -199,15 +198,17 @@ class MongoToGQL {
             });
             modelPathList.forEach((modelPath) => {
                 const imported = require(path_1.default.resolve(modelPath));
-                this.modelToTypeDefinition(imported);
-                this.modelToQueryDefinition(imported);
-                this.modelToSortKeyDefinition(imported);
-                this.modelToDefaultQuery(imported);
-                this.modelToGetALLQuery(imported);
+                const Model = new imported.default();
+                this.modelToTypeDefinition(Model);
+                this.modelToQueryDefinition(Model);
+                this.modelToSortKeyDefinition(Model);
+                this.modelToDefaultQuery(Model);
+                this.modelToGetALLQuery(Model);
             });
             this.typeQueryDefs += `} \n`;
             this.typeDefs += this.typeQueryDefs;
             if (mutationFolderPath) {
+                this.resolvers.Mutation = {};
                 const mutationPathList = yield this.readMutationList(path_1.default.join(process.cwd(), mutationFolderPath), type);
                 yield Promise.all(mutationPathList.map((mutationPath) => __awaiter(this, void 0, void 0, function* () {
                     const Mutation = require(path_1.default.resolve(mutationPath)).default;

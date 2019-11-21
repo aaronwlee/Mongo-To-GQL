@@ -21,11 +21,11 @@ export default function convertType(type: any): String {
 
         }
         else {
-            return `[${convertCapAndRemovePlural(type.path)}]`
+            return `[${convertCapAndRemovePlural(type.caster.options.ref)}]`
         }
     }
     else if (type.instance === "ObjectID") {
-        return convertCapAndRemovePlural(type.path)
+        return convertCapAndRemovePlural(type.options.ref)
     }
     else {
         return type.instance

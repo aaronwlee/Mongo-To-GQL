@@ -42,8 +42,8 @@ exports.GQLt = {
     CustomArray: (custom) => `[${custom}]`,
     CustomArrayRequire: (custom) => `[${custom}!]`,
 };
-function executeApolloServer(app, modelFolderPath, mutationFolderPath, type = 'js', logger = logger_1.default) {
-    new mongoToGQL_1.default(logger).generate(modelFolderPath, mutationFolderPath, type)
+function executeApolloServer(app, modelFolderPath, mutationFolderPath = null, logger = logger_1.default) {
+    new mongoToGQL_1.default(logger).generate(modelFolderPath, mutationFolderPath)
         .then(converted => {
         new apollo_server_express_1.ApolloServer(converted).applyMiddleware({ app });
     })

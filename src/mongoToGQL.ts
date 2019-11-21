@@ -18,9 +18,6 @@ class MongoToGQL {
         JSON: GraphQLJSON,
         Query: {
 
-        },
-        Mutation: {
-
         }
     };
 
@@ -54,7 +51,7 @@ class MongoToGQL {
                 reject(`path: '${mutationFolderPath}/*.${type}' - found 0 files`)
             }
             else {
-                this.logger.debug(`GQL autogenerater - found ${modelPathList.length} models`)
+                this.logger.debug(`GQL autogenerater - found ${modelPathList.length} mutations`)
                 resolve(modelPathList);
             }
         })
@@ -211,32 +208,34 @@ class MongoToGQL {
         })
         modelPathList.forEach((modelPath: any) => {
             const imported = require(path.resolve(modelPath))
-            this.modelToTypeDefinition(imported);
-            this.modelToQueryDefinition(imported);
-            this.modelToSortKeyDefinition(imported);
-            this.modelToDefaultQuery(imported);
-            this.modelToGetALLQuery(imported);
+            const Model = new imported.default()
+            this.modelToTypeDefinition(Model);
+            this.modelToQueryDefinition(Model);
+            this.modelToSortKeyDefinition(Model);
+            this.modelToDefaultQuery(Model);
+            this.modelToGetALLQuery(Model);
         })
-        
+
         this.typeQueryDefs += `} \n`
         this.typeDefs += this.typeQueryDefs;
 
-        if(mutationFolderPath) {
+        if (mutationFolderPath) {
+            this.resolvers.Mutation = {};
             const mutationPathList: string[] = await this.readMutationList(path.join(process.cwd(), mutationFolderPath), type)
             await Promise.all(mutationPathList.map(async (mutationPath: any) => {
                 const Mutation = require(path.resolve(mutationPath)).default
                 const mutation = new Mutation()
-    
+
                 await this.mutationToInputDefinition(mutation, "inputType")
                 this.mutationToReturnTypeDefinition(mutation.mutationName);
                 this.typeMutationDefs += `\t${convertFirstLowercase(mutation.mutationName)}(input: ${convertFirstUppercase(mutation.mutationName)}InputType!): ${convertFirstUppercase(mutation.mutationName)}ReturnType\n`
                 this.resolvers.Mutation[convertFirstLowercase(mutation.mutationName)] = mutation.resolver
             }))
             this.typeMutationDefs += `} \n`
-    
+
             this.typeDefs += this.typeMutationDefs;
         }
-       
+
         this.logger.debug('GQL autogenerater - complete')
 
         return this.converted()

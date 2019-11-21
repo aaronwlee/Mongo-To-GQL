@@ -39,6 +39,6 @@ export declare const GQLt: {
     CustomArray: (custom: string) => string;
     CustomArrayRequire: (custom: string) => string;
 };
-export declare function executeApolloServer(app: any, modelFolderPath: string, mutationFolderPath: string, type?: string, logger?: Logger): void;
+export declare function executeApolloServer(app: any, modelFolderPath: string, mutationFolderPath?: string | null, logger?: Logger): void;
 declare const _default: (logger?: Logger) => MongoToGQL;
 export default _default;
