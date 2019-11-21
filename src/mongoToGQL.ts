@@ -207,7 +207,7 @@ class MongoToGQL {
             delete mongoose.connection.models[name]
         })
         modelPathList.forEach((modelPath: any) => {
-            const imported = require(path.resolve(modelPath))
+            const imported = require(modelPath)
             const Model = new imported.default()
             this.modelToTypeDefinition(Model);
             this.modelToQueryDefinition(Model);
