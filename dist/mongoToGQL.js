@@ -198,7 +198,6 @@ class MongoToGQL {
             });
             modelPathList.forEach((modelPath) => {
                 const imported = require(path_1.default.resolve(modelPath));
-                console.log("test => ", Object.keys(imported.default()));
                 const Model = new imported.default();
                 this.modelToTypeDefinition(Model);
                 this.modelToQueryDefinition(Model);

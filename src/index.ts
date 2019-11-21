@@ -16,8 +16,8 @@ export interface Mutation {
 }
 
 export interface GraphModel {
-    gqlOption? : {
-        Populate: []
+    gqlOption?: {
+        Populate: string[]
     }
     schema: Schema,
     model: Model<any>
@@ -60,10 +60,28 @@ export const graphType = {
     CustomArrayRequire: (custom: string) => `[${custom}!]`,
 }
 
-export function executeApolloServer(app: any, modelFolderPath: string, mutationFolderPath: string | null = null, logger: Logger = defaultlogger) {
-    new MongoToGQL(logger).generate(modelFolderPath, mutationFolderPath)
+export class Options {
+    app: any;
+    path?: string;
+    modelFolderPath: string;
+    mutationFolderPath?: string;
+    logger?: string;
+}
+
+const apolloServerOptions = ({ ...options }: Options) => ({
+    app: options.app,
+    path: options.path ? options.path : '/graphql',
+    modelFolderPath: options.modelFolderPath,
+    mutationFolderPath: options.mutationFolderPath ? options.mutationFolderPath : null,
+    logger: options.logger ? options.logger : defaultlogger
+})
+
+export function executeApolloServer({ ...options }: Options) {
+    const MTGOptions = apolloServerOptions(options)
+    const { app, path, logger, modelFolderPath, mutationFolderPath } = MTGOptions
+    new MongoToGQL(MTGOptions.logger).generate(modelFolderPath, mutationFolderPath)
         .then(converted => {
-            new ApolloServer(converted).applyMiddleware({ app })
+            new ApolloServer(converted).applyMiddleware({ app, path })
         })
         .catch(error => {
             logger.error("mongo-to-gql failed ", error)

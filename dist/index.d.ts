@@ -12,7 +12,7 @@ export interface Mutation {
 }
 export interface GraphModel {
     gqlOption?: {
-        Populate: [];
+        Populate: string[];
     };
     schema: Schema;
     model: Model<any>;
@@ -47,6 +47,13 @@ export declare const graphType: {
     CustomArray: (custom: string) => string;
     CustomArrayRequire: (custom: string) => string;
 };
-export declare function executeApolloServer(app: any, modelFolderPath: string, mutationFolderPath?: string | null, logger?: Logger): void;
+export declare class Options {
+    app: any;
+    path?: string;
+    modelFolderPath: string;
+    mutationFolderPath?: string;
+    logger?: string;
+}
+export declare function executeApolloServer({ ...options }: Options): void;
 declare const _default: (logger?: Logger) => MongoToGQL;
 export default _default;
