@@ -23,6 +23,10 @@ class ReturnType {
     }
 }
 exports.ReturnType = ReturnType;
+function mongoModel(mongo, modelName, modelSchema) {
+    return mongo.models[modelName] || mongo.model(modelName, modelSchema);
+}
+exports.mongoModel = mongoModel;
 exports.graphType = {
     String: "String",
     StringRequire: "String!",

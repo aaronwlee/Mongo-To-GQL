@@ -2,7 +2,7 @@ import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
 import defaultlogger from './utils/logger'
 import { ApolloServer } from "apollo-server-express";
-import { Schema, Model } from "mongoose";
+import { Schema, Model, Mongoose } from "mongoose";
 
 export class ReturnType {
     done: boolean = false;
@@ -21,6 +21,10 @@ export interface GraphModel {
     }
     schema: Schema,
     model: Model<any>
+}
+
+export function mongoModel(mongo: Mongoose, modelName: string, modelSchema: Schema) {
+    return mongo.models[modelName] || mongo.model(modelName, modelSchema);
 }
 
 export const graphType = {

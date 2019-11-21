@@ -1,6 +1,6 @@
 import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
-import { Schema, Model } from "mongoose";
+import { Schema, Model, Mongoose } from "mongoose";
 export declare class ReturnType {
     done: boolean;
     error: any;
@@ -17,6 +17,7 @@ export interface GraphModel {
     schema: Schema;
     model: Model<any>;
 }
+export declare function mongoModel(mongo: Mongoose, modelName: string, modelSchema: Schema): Model<any, {}>;
 export declare const graphType: {
     String: string;
     StringRequire: string;
