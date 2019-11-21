@@ -205,6 +205,9 @@ class MongoToGQL {
                 this.modelToDefaultQuery(Model);
                 this.modelToGetALLQuery(Model);
             });
+            Object.keys(mongoose_1.default.connection.models).forEach(name => {
+                delete mongoose_1.default.connection.models[name];
+            });
             this.typeQueryDefs += `} \n`;
             this.typeDefs += this.typeQueryDefs;
             if (mutationFolderPath) {

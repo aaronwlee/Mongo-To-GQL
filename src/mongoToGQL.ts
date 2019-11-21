@@ -215,7 +215,9 @@ class MongoToGQL {
             this.modelToDefaultQuery(Model);
             this.modelToGetALLQuery(Model);
         })
-
+        Object.keys(mongoose.connection.models).forEach(name => {
+            delete mongoose.connection.models[name]
+        })
         this.typeQueryDefs += `} \n`
         this.typeDefs += this.typeQueryDefs;
 
