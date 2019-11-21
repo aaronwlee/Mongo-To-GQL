@@ -3,6 +3,9 @@
 
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 
+*** *New Stable Version!! 2.1.0 ***
+Please don't use previous versions.
+
 ## Installing
 
 ```
@@ -21,17 +24,29 @@ Mongo model basic
 * export const schema and const model in your mongo model file
 ex) src/model/user.model.ts
 ```ts
+import mongoose, { Schema, Document, Model } from "mongoose";
+import { GraphModel } from 'mongo-to-gql'
+
 type UserDocument = Document & {
     email: string;
     name: string;
 };
 
-export const schema: any = new Schema({
+class User implements GraphModel {
+  gqlOption = {
+    Populate: ["followers"] // join options for query (field name)
+  }
+
+  schema: Schema = new Schema({
     email: { type: String, unique: true },
     name: String,
-}, { timestamps: true });
+    followers: [{ type: Schema.Types.ObjectId, ref: 'User' }] // self join
+  }, { timestamps: true });
 
-export const model = mongoose.model<UserDocument>("User", schema);
+  model: Model<UserDocument> = mongoose.model<UserDocument>("User", this.schema);
+}
+
+export default User;
 ```
 
 After using our mongo-to-gql, you'll get auto-generated this queries and gql definitions
@@ -96,10 +111,30 @@ Result
 <br>
 
 ```ts
-executeApolloServer(<express app!>, <built model path!>, <built mutation path!>, <type? "js" || "ts">, <Optional winston logger?>)
+const options: MongoToGQLOptions = {
+    app: app,
+    modelFolderPath: 'dist/model',
+    
+    // optional
+    mutationFolderPath: 'dist/mutation',
+    path: '/thisisnotdefaultpath',
+    logger: logger // winston logger
+}
 ```
-- Initializing, building and connect apollo server
-- After your express server executed, apollo server will make a router in your `/graphql`
+- `app` is your express app
+- `modelFolderPath` should be your pure js model folder which is starting with `pwd` path
+- `mutationFolderPath` should be your pure js mutation folder which is starting with `pwd` path
+- `path` is for graphql path config, default router is `/graphql`
+- `logger` is your customizable logger config, this logger is basically using winstonjs
+
+```ts
+executeApolloServer(options)
+```
+- Initializing, building and connect apollo server with MongoToGQLOptions
+- After your express server executed, apollo server will start with `/graphql` router or your path config
+
+
+### will be deprecated
 
 ```ts
 MongoToGQL(<Optional winston logger?>)
@@ -129,6 +164,8 @@ gqlServer.applyMiddleware({ app });
 - Apply into your express app! 
 - After your express server executed, apollo server will make a router in your `/graphql`
 
+
+### How to Initialize
 `New!`
 ```ts
 import { executeApolloServer } from 'mongo-to-gql';
@@ -136,28 +173,22 @@ import express from "express";
 
 const app = express();
 
-executeApolloServer(app, 'dist/model', 'dist/mutation');
+const options: MongoToGQLOptions = {
+    app: app,
+    modelFolderPath: 'dist/model',
+    mutationFolderPath: 'dist/mutation'
+}
+executeApolloServer(options)
+// or
+executeApolloServer({
+    app: app,
+    modelFolderPath: 'dist/model',
+    mutationFolderPath: 'dist/mutation'
+})
+
 ```
 
-`Bygone`
-```ts
-import MongoToGQL from 'mongo-to-gql';
-import express from "express";
-import { ApolloServer } from 'apollo-server-express';
-
-const app = express();
-
-MongoToGQL().generate('dist/model', 'dist/mutation')
-  .then(convered => {
-    new ApolloServer(converted).applyMiddleware({ app });
-  })
-  .catch (error => {
-    console.error("GQL converting error!\n", error);
-    process.exit(1);
-  })
-```
-
-`Old!`
+`Old-1!`
 ```ts
 const mongoToGql = MongoToGQL()
 mongoToGql.generate('dist/model', 'dist/mutation')
@@ -176,6 +207,24 @@ mongoToGql.generate('dist/model', 'dist/mutation')
   })
 ```
 
+`Old-2!`
+```ts
+import MongoToGQL from 'mongo-to-gql';
+import express from "express";
+import { ApolloServer } from 'apollo-server-express';
+
+const app = express();
+
+MongoToGQL().generate('dist/model', 'dist/mutation')
+  .then(convered => {
+    new ApolloServer(converted).applyMiddleware({ app });
+  })
+  .catch (error => {
+    console.error("GQL converting error!\n", error);
+    process.exit(1);
+  })
+```
+
 <br>
 <br>
 
@@ -186,41 +235,45 @@ Mongo model with mongoosejs
 <br>
 <br>
 
-### Model sample (in model folder) 
-> **Note** - export schema and model are mandatory
-
+### Mutation sample (in mutation folder)
 > **Path** - src/model/user.model.ts
+- `schema` and `model` are mandatory! Try to use `GraphModel` interface, it'll be easier.
+- `gqlOption` is for joining the foreign table, without this the queries will return the just _ids
+
 ```ts
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
+import { GraphModel } from 'mongo-to-gql'
 
 type UserDocument = Document & {
     email: string;
+    age: number;
     name: string;
     password: string;
-    address: string;
-    picture: string[];
-    products: string[];
-    test: string;
+    follower: Schema.Types.ObjectId;
+    thisisProducts: Schema.Types.ObjectId;
 };
 
-export const gqlOption = {
-    Populate: ["products", "test"]
+class User implements GraphModel {
+    // this is optional for joining table when do the queries
+    gqlOption = {
+        Populate: ["follower", "thisisProducts"]
+    }
+
+    // name must be schema
+    schema: any = new Schema({
+        email: { type: String, unique: true },
+        age: { type: Number },
+        name: { type: String, required: true },
+        password: String,
+        follower: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+        thisisProducts: { type: Schema.Types.ObjectId, ref: "Product" }     // foreign model 
+    }, { timestamps: true });
+
+    // name must be model
+    model: Model<UserDocument> = mongoose.model<UserDocument>("User", this.schema);
 }
 
-// required name with schema
-export const schema: any = new Schema({
-    email: { type: String, unique: true },
-    name: String,
-    password: String,
-    address: String,
-    picture: String,
-    products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
-    test: { type: Schema.Types.ObjectId, ref: "Test" }
-}, { timestamps: true }); 
-
-// required name with model
-export const model = mongoose.model<UserDocument>("User", schema);
-
+export default User
 ```
 <br>
 <br>
@@ -271,67 +324,57 @@ query UserByID {
 - The resolver should be an async method, but it's doesn't matter.
 
 ```ts
-import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import * as User from "../model/user.model";
-import * as Product from "../model/product.model";
-import * as Test from "../model/test.model";
-import { Mutation, GQLt, ReturnType } from 'mongo-to-gql'
+import User from "../model/user.model";
+import { Mutation, graphType, ReturnType } from 'mongo-to-gql'
+import Product from '../model/product.model';
 
 class AddUser implements Mutation {
     mutationName: string = "AddUser"
 
     public inputType = {
-        name: GQLt.String,      // same as "String"
-        email: GQLt.String,
-        address: GQLt.String,
-        password: GQLt.String,
-        product: GQLt.CustomArray("ProductInputType"),      // same as "[ProductInputType]"
-        test: GQLt.Custom("TestInputType")
+        name: graphType.String,
+        email: graphType.StringRequire,
+        address: graphType.StringRequire,
+        password: graphType.String,
+        follower: graphType.ID,
+        product: graphType.CustomRequire("CustomProductInputType")
     }
 
-    public ProductInputType = {
-        name: GQLt.String,
-        detail: GQLt.String
+    public CustomProductInputType = {
+        name: graphType.String
     }
 
-    public TestInputType = {
-        text: GQLt.String
-    }
-
+    // this must be returned as Promise<ReturnType>
     public resolver = (_: any, { input }: any): Promise<ReturnType> => {
-        return new Promise((resolve, reject) => {
-            bcrypt.hash(input.password, 10, async function (err, hash) {
-                try {
-                    if (err) {
-                        resolve({ done: false, error: "bycrypt error" })
-                    }
-                    // Store hash in your password DB.
-                    const newProduct = await Product.model.create(input.product)
-                    const newTest = await Test.model.create(input.test)
-                    await User.model.create({
-                        name: input.name,
-                        address: input.address,
-                        email: input.email,
-                        password: hash,
-                        picture: getAvatar(input.email),
-                        products: newProduct,
-                        test: newTest
-                    })
-                    resolve({
-                        done: true,
-                        error: null
-                    })
-                } catch (error) {
-                    if (error.code === 11000) {
-                        resolve({ done: false, error: 'email already used' });
-                    }
-                    else {
-                        resolve({ done: false, error: `${error} : bad happend while we are saving user data`'email already used' });
-                    }
+        return new Promise(async (resolve, reject) => {
+            try {
+                const UserModel = new User().model;
+                const ProductModel = new Product().model;
+                const foundUser = await UserModel.findOne({ _id: input.follower })
+                const newProduct = await ProductModel.create({ name: input.product.name })
+                await UserModel.create({
+                    name: input.name,
+                    address: input.address,
+                    email: input.email,
+                    // hash it before!
+                    password: input.password,
+                    picture: getAvatar(input.email),
+                    follower: [foundUser],
+                    thisisProducts: newProduct
+                })
+                resolve({
+                    done: true,
+                    error: null
+                })
+            } catch (error) {
+                if (error.code === 11000) {
+                    resolve({ done: false, error: "email already used" })
                 }
-
-            });
+                else {
+                    resolve({ done: false, error: `${error} : bad happend while we are saving user data` })
+                }
+            }
         })
     }
 }
@@ -360,25 +403,24 @@ export default AddUser
 ```ts
 mutation AddUser{
 	addUser(input: {
-        name:"aaron", 
-        email: "aaron@aaron.com", 
-        password: "thisispassword", 
-        product: [
-            { name: "starseed", detail: "this is good!" },
-            { name: "Good seed", detail: "You'll love it!" }
-        ]
-    }) {
-        done
-        error
-    }
+    name:"Wooseok Lee", 
+    email: "aaron.lee@wooseok.com", 
+    password: "123",
+    address: "somewhere",
+    follower: "5dd60a152b451e03159d2ead"
+    product: {name: "PerfectOne"}
+  }){
+    done
+    error
+  }
 }
 ```
 
 
 ## Authors
 
-* ***Eric Xizheng Ding*** - *Origin work* - [dingxizheng](https://github.com/dingxizheng/model_to_graphql)
 * ***Aaron Wooseok Lee*** - *Initial work* - [aaronwlee](https://github.com/aaronwlee)
+* ***Eric Xizheng Ding*** - *Origin work* - [dingxizheng](https://github.com/dingxizheng/model_to_graphql)
 
 ## License
 

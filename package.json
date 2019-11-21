@@ -1,7 +1,7 @@
 {
   "name": "mongo-to-gql",
   "email": "aaronwoolee95@gmail.com",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "mongodb model to graphql for apollo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -53,9 +53,9 @@ exports.graphType = {
     CustomArray: (custom) => `[${custom}]`,
     CustomArrayRequire: (custom) => `[${custom}!]`,
 };
-class Options {
+class MongoToGQLOptions {
 }
-exports.Options = Options;
+exports.MongoToGQLOptions = MongoToGQLOptions;
 const apolloServerOptions = (_a) => {
     var options = __rest(_a, []);
     return ({

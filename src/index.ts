@@ -60,7 +60,7 @@ export const graphType = {
     CustomArrayRequire: (custom: string) => `[${custom}!]`,
 }
 
-export class Options {
+export class MongoToGQLOptions {
     app: any;
     path?: string;
     modelFolderPath: string;
@@ -68,7 +68,7 @@ export class Options {
     logger?: string;
 }
 
-const apolloServerOptions = ({ ...options }: Options) => ({
+const apolloServerOptions = ({ ...options }: MongoToGQLOptions) => ({
     app: options.app,
     path: options.path ? options.path : '/graphql',
     modelFolderPath: options.modelFolderPath,
@@ -76,7 +76,7 @@ const apolloServerOptions = ({ ...options }: Options) => ({
     logger: options.logger ? options.logger : defaultlogger
 })
 
-export function executeApolloServer({ ...options }: Options) {
+export function executeApolloServer({ ...options }: MongoToGQLOptions) {
     const MTGOptions = apolloServerOptions(options)
     const { app, path, logger, modelFolderPath, mutationFolderPath } = MTGOptions
     new MongoToGQL(MTGOptions.logger).generate(modelFolderPath, mutationFolderPath)
