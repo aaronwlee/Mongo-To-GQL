@@ -1,5 +1,6 @@
 import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
+import { Schema, Model } from "mongoose";
 export declare class ReturnType {
     done: boolean;
     error: any;
@@ -9,7 +10,14 @@ export interface Mutation {
     inputType: {};
     resolver: (parent?: any, args?: any, context?: any, info?: any) => Promise<ReturnType>;
 }
-export declare const GQLt: {
+export interface GraphModel {
+    gqlOption?: {
+        Populate: [];
+    };
+    schema: Schema;
+    model: Model<any>;
+}
+export declare const graphType: {
     String: string;
     StringRequire: string;
     StringArray: string;

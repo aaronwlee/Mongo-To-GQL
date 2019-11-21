@@ -2,6 +2,7 @@ import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
 import defaultlogger from './utils/logger'
 import { ApolloServer } from "apollo-server-express";
+import { Schema, Model } from "mongoose";
 
 export class ReturnType {
     done: boolean = false;
@@ -14,7 +15,15 @@ export interface Mutation {
     resolver: (parent?: any, args?: any, context?: any, info?: any) => Promise<ReturnType>;
 }
 
-export const GQLt = {
+export interface GraphModel {
+    gqlOption? : {
+        Populate: []
+    }
+    schema: Schema,
+    model: Model<any>
+}
+
+export const graphType = {
     String: "String",
     StringRequire: "String!",
     StringArray: "[String]",

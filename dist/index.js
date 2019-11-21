@@ -12,7 +12,7 @@ class ReturnType {
     }
 }
 exports.ReturnType = ReturnType;
-exports.GQLt = {
+exports.graphType = {
     String: "String",
     StringRequire: "String!",
     StringArray: "[String]",

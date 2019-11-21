@@ -25,7 +25,7 @@ export default function convertType(type: any): String {
         }
     }
     else if (type.instance === "ObjectID") {
-        return convertCapAndRemovePlural(type.options.ref)
+        return convertCapAndRemovePlural(type.options.ref )
     }
     else {
         return type.instance
