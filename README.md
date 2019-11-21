@@ -25,7 +25,7 @@ Mongo model basic
 ex) src/model/user.model.ts
 ```ts
 import mongoose, { Schema, Document, Model } from "mongoose";
-import { GraphModel } from 'mongo-to-gql'
+import { GraphModel, mongoModel } from 'mongo-to-gql'
 
 type UserDocument = Document & {
     email: string;
@@ -43,7 +43,7 @@ class User implements GraphModel {
     followers: [{ type: Schema.Types.ObjectId, ref: 'User' }] // self join
   }, { timestamps: true });
 
-  model: Model<UserDocument> = mongoose.model<UserDocument>("User", this.schema);
+  model: Model<UserDocument> = mongoModel(mongoose, "User", this.schema) // this is for remove OverwriteModelError issue
 }
 
 export default User;
@@ -110,6 +110,8 @@ Result
 
 <br>
 
+### Let's start it!
+
 ```ts
 const options: MongoToGQLOptions = {
     app: app,
@@ -135,6 +137,7 @@ executeApolloServer(options)
 
 
 ### will be deprecated
+
 
 ```ts
 MongoToGQL(<Optional winston logger?>)
@@ -165,7 +168,8 @@ gqlServer.applyMiddleware({ app });
 - After your express server executed, apollo server will make a router in your `/graphql`
 
 
-### How to Initialize
+## How to Initialize
+
 `New!`
 ```ts
 import { executeApolloServer } from 'mongo-to-gql';
@@ -233,16 +237,16 @@ MongoToGQL().generate('dist/model', 'dist/mutation')
 Mongo model with mongoosejs
 
 <br>
-<br>
 
 ### Mutation sample (in mutation folder)
 > **Path** - src/model/user.model.ts
 - `schema` and `model` are mandatory! Try to use `GraphModel` interface, it'll be easier.
 - `gqlOption` is for joining the foreign table, without this the queries will return the just _ids
+- `mongoModel` is for solving `OverwriteModelError` issue, recommand to use it
 
 ```ts
 import mongoose, { Schema, Document, Model } from "mongoose";
-import { GraphModel } from 'mongo-to-gql'
+import { GraphModel, mongoModel } from 'mongo-to-gql'
 
 type UserDocument = Document & {
     email: string;
@@ -270,7 +274,7 @@ class User implements GraphModel {
     }, { timestamps: true });
 
     // name must be model
-    model: Model<UserDocument> = mongoose.model<UserDocument>("User", this.schema);
+    model: Model<UserDocument> = mongoModel(mongoose, "User", this.schema) // this is for remove OverwriteModelError issue
 }
 
 export default User
