@@ -3,8 +3,9 @@
 
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 
-*** *New Stable Version!! 2.1.0 ***
+*** *New Stable Version!! 2.1.2 ***
 Please don't use previous versions.
+* critical bug fixed
 
 ## Installing
 

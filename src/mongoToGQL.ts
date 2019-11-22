@@ -203,9 +203,7 @@ class MongoToGQL {
     public async generate(modelFolderPath: string, mutationFolderPath?: string, type: string = 'js') {
         this.logger.debug('GQL autogenerater - start')
         const modelPathList: string[] = await this.readModelList(path.join(process.cwd(), modelFolderPath), type)
-        Object.keys(mongoose.connection.models).forEach(name => {
-            delete mongoose.connection.models[name]
-        })
+
         modelPathList.forEach((modelPath: any) => {
             const imported = require(path.resolve(modelPath))
             const Model = new imported.default()
@@ -215,9 +213,7 @@ class MongoToGQL {
             this.modelToDefaultQuery(Model);
             this.modelToGetALLQuery(Model);
         })
-        Object.keys(mongoose.connection.models).forEach(name => {
-            delete mongoose.connection.models[name]
-        })
+
         this.typeQueryDefs += `} \n`
         this.typeDefs += this.typeQueryDefs;
 

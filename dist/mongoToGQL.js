@@ -17,7 +17,6 @@ const glob_1 = __importDefault(require("glob"));
 const apollo_server_express_1 = require("apollo-server-express");
 const convertType_1 = __importDefault(require("./converters/convertType"));
 const graphql_type_json_1 = __importDefault(require("graphql-type-json"));
-const mongoose_1 = __importDefault(require("mongoose"));
 const convertQueryType_1 = __importDefault(require("./converters/convertQueryType"));
 const inputType_1 = __importDefault(require("./utils/inputType"));
 const convertCap_1 = require("./converters/convertCap");
@@ -193,9 +192,6 @@ class MongoToGQL {
         return __awaiter(this, void 0, void 0, function* () {
             this.logger.debug('GQL autogenerater - start');
             const modelPathList = yield this.readModelList(path_1.default.join(process.cwd(), modelFolderPath), type);
-            Object.keys(mongoose_1.default.connection.models).forEach(name => {
-                delete mongoose_1.default.connection.models[name];
-            });
             modelPathList.forEach((modelPath) => {
                 const imported = require(path_1.default.resolve(modelPath));
                 const Model = new imported.default();
@@ -204,9 +200,6 @@ class MongoToGQL {
                 this.modelToSortKeyDefinition(Model);
                 this.modelToDefaultQuery(Model);
                 this.modelToGetALLQuery(Model);
-            });
-            Object.keys(mongoose_1.default.connection.models).forEach(name => {
-                delete mongoose_1.default.connection.models[name];
             });
             this.typeQueryDefs += `} \n`;
             this.typeDefs += this.typeQueryDefs;
