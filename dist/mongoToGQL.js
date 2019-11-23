@@ -20,6 +20,7 @@ const graphql_type_json_1 = __importDefault(require("graphql-type-json"));
 const convertQueryType_1 = __importDefault(require("./converters/convertQueryType"));
 const inputType_1 = __importDefault(require("./utils/inputType"));
 const convertCap_1 = require("./converters/convertCap");
+const validate_1 = require("./utils/validate");
 class MongoToGQL {
     constructor(gqlLogger) {
         this.typeDefs = "\nscalar Date\nscalar JSON\n\n";
@@ -206,6 +207,10 @@ class MongoToGQL {
                 const imported = require(path_1.default.resolve(modelPath));
                 const model = imported.default;
                 const gqlOption = imported.gqlOption ? imported.gqlOption : {};
+                const errors = validate_1.virtualsValidate(model);
+                if (errors.length > 0) {
+                    this.logger.error(errors.join("\n"));
+                }
                 this.modelToTypeDefinition(model);
                 this.modelToQueryDefinition(model);
                 this.modelToSortKeyDefinition(model);

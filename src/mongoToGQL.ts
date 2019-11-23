@@ -8,6 +8,7 @@ import { Model } from "mongoose";
 import convertQueryType from "./converters/convertQueryType";
 import inputType from "./utils/inputType";
 import { convertCapAndRemovePlural, convertFirstUppercase, convertCapAndAddPlural, convertFirstLowercase } from "./converters/convertCap";
+import { virtualsValidate } from "./utils/validate";
 
 class MongoToGQL {
   public typeDefs: string = "\nscalar Date\nscalar JSON\n\n";
@@ -68,7 +69,7 @@ class MongoToGQL {
       }
     });
     Object.keys(model.schema.virtuals).forEach(virtualName => {
-      if(virtualName !== "id") {
+      if (virtualName !== "id") {
         modelDef += `\t${virtualName}: JSON`
       }
     })
@@ -85,7 +86,7 @@ class MongoToGQL {
       }
     });
     Object.keys(model.schema.virtuals).forEach(virtualName => {
-      if(virtualName !== "id") {
+      if (virtualName !== "id") {
         modelDef += `\t${virtualName}: JSON`
       }
     })
@@ -218,6 +219,10 @@ class MongoToGQL {
       const imported = require(path.resolve(modelPath));
       const model: Model<any> = imported.default;
       const gqlOption: any = imported.gqlOption ? imported.gqlOption : {};
+      const errors = virtualsValidate(model)
+      if (errors.length > 0) {
+        this.logger.error(errors.join("\n"))
+      }
       this.modelToTypeDefinition(model);
       this.modelToQueryDefinition(model);
       this.modelToSortKeyDefinition(model);
