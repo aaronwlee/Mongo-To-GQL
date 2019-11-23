@@ -54,6 +54,6 @@ export declare class MongoToGQLOptions {
     mutationFolderPath?: string;
     logger?: Logger;
 }
-export declare function executeApolloServer({ ...options }: MongoToGQLOptions): void;
+export declare function executeApolloServer({ ...options }: MongoToGQLOptions): Promise<void>;
 declare const _default: (logger?: Logger) => MongoToGQL;
 export default _default;
