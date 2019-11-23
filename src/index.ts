@@ -71,11 +71,11 @@ export class MongoToGQLOptions {
 
 export async function executeApolloServer({ ...options }: MongoToGQLOptions) {
   const { app, path, logger, modelFolderPath, mutationFolderPath } = options;
+  console.log(options)
   try {
     const converted = await new MongoToGQL(logger).generate(modelFolderPath, mutationFolderPath)
     new ApolloServer(converted).applyMiddleware({ app, path });
   } catch (error) {
-    logger.error("mongo-to-gql failed ", error);
     console.error(error)
   }
 }
