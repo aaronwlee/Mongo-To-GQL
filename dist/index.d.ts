@@ -47,13 +47,13 @@ export declare const graphType: {
     CustomArray: (custom: string) => string;
     CustomArrayRequire: (custom: string) => string;
 };
-export declare class MongoToGQLOptions {
+export interface ImongoToGQLOptions {
     app: any;
     path?: string;
     modelFolderPath: string;
     mutationFolderPath?: string;
     logger?: Logger;
 }
-export declare function executeApolloServer({ ...options }: MongoToGQLOptions): Promise<void>;
+export declare function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<void>;
 declare const _default: (logger?: Logger) => MongoToGQL;
 export default _default;

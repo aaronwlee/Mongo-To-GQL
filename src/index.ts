@@ -61,21 +61,21 @@ export const graphType = {
   CustomArrayRequire: (custom: string) => `[${custom}!]`,
 };
 
-export class MongoToGQLOptions {
-  public app: any;
-  public path?: string = "/graphql";
-  public modelFolderPath: string;
-  public mutationFolderPath?: string = null;
-  public logger?: Logger = defaultlogger;
+export interface ImongoToGQLOptions {
+  app: any;
+  path?: string;
+  modelFolderPath: string;
+  mutationFolderPath?: string;
+  logger?: Logger;
 }
 
-export async function executeApolloServer({ ...options }: MongoToGQLOptions) {
-  const { app, path, logger, modelFolderPath, mutationFolderPath } = options;
-  console.log(options)
+export async function executeApolloServer({ ...options }: ImongoToGQLOptions) {
+  const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", logger = defaultlogger } = options;
   try {
     const converted = await new MongoToGQL(logger).generate(modelFolderPath, mutationFolderPath)
     new ApolloServer(converted).applyMiddleware({ app, path });
   } catch (error) {
+    logger.error(error)
     console.error(error)
   }
 }
