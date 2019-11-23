@@ -15,7 +15,7 @@ export interface Imutation {
 }
 
 export interface IgqlOption {
-  populate: string[] | {
+  Populate: string[] | {
     path: string;
     match?: any;
     select?: any;
