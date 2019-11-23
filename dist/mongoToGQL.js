@@ -84,6 +84,11 @@ class MongoToGQL {
                 modelDef += `\t${fieldName}: ${convertType_1.default(model.schema.paths[fieldName])}\n`;
             }
         });
+        Object.keys(model.schema.virtuals).forEach(virtualName => {
+            if (virtualName !== "id") {
+                modelDef += `\t${virtualName}: JSON`;
+            }
+        });
         modelDef += "}\n";
         this.typeDefs += modelDef;
     }
@@ -92,6 +97,11 @@ class MongoToGQL {
         Object.keys(model.schema.paths).forEach(fieldName => {
             if (fieldName !== "__v") {
                 modelDef += convertQueryType_1.default(fieldName, model.schema.paths[fieldName]);
+            }
+        });
+        Object.keys(model.schema.virtuals).forEach(virtualName => {
+            if (virtualName !== "id") {
+                modelDef += `\t${virtualName}: JSON`;
             }
         });
         modelDef += "}\n";
