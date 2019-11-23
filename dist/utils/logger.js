@@ -34,7 +34,7 @@ const options = {
 const logger = winston_1.createLogger(options);
 logger.stream = {
     write: function (message) {
-        logger.info(message.replace('\n', ''));
+        logger.info(message.replace("\n", ""));
     }
 };
 exports.default = logger;

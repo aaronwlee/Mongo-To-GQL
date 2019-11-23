@@ -1,23 +1,22 @@
 import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
-import { Schema, Model, Mongoose } from "mongoose";
 export declare class ReturnType {
     done: boolean;
     error: any;
 }
-export interface Mutation {
+export interface Imutation {
     mutationName: string;
     inputType: {};
     resolver: (parent?: any, args?: any, context?: any, info?: any) => Promise<ReturnType>;
 }
-export interface GraphModel {
-    gqlOption?: {
-        Populate: string[];
-    };
-    schema: Schema;
-    model: Model<any>;
+export interface IgqlOption {
+    populate: string[] | {
+        path: string;
+        match?: any;
+        select?: any;
+        options?: any;
+    }[];
 }
-export declare function mongoModel(mongo: Mongoose, modelName: string, modelSchema: Schema): Model<any, {}>;
 export declare const graphType: {
     String: string;
     StringRequire: string;
@@ -50,10 +49,10 @@ export declare const graphType: {
 };
 export declare class MongoToGQLOptions {
     app: any;
-    path?: string;
+    path: string;
     modelFolderPath: string;
     mutationFolderPath?: string;
-    logger?: string;
+    logger?: Logger;
 }
 export declare function executeApolloServer({ ...options }: MongoToGQLOptions): void;
 declare const _default: (logger?: Logger) => MongoToGQL;

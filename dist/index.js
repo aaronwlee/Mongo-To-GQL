@@ -23,10 +23,6 @@ class ReturnType {
     }
 }
 exports.ReturnType = ReturnType;
-function mongoModel(mongo, modelName, modelSchema) {
-    return mongo.models[modelName] || mongo.model(modelName, modelSchema);
-}
-exports.mongoModel = mongoModel;
 exports.graphType = {
     String: "String",
     StringRequire: "String!",
@@ -58,23 +54,16 @@ exports.graphType = {
     CustomArrayRequire: (custom) => `[${custom}!]`,
 };
 class MongoToGQLOptions {
+    constructor() {
+        this.path = "/graphql";
+        this.logger = logger_1.default;
+    }
 }
 exports.MongoToGQLOptions = MongoToGQLOptions;
-const apolloServerOptions = (_a) => {
-    var options = __rest(_a, []);
-    return ({
-        app: options.app,
-        path: options.path ? options.path : '/graphql',
-        modelFolderPath: options.modelFolderPath,
-        mutationFolderPath: options.mutationFolderPath ? options.mutationFolderPath : null,
-        logger: options.logger ? options.logger : logger_1.default
-    });
-};
 function executeApolloServer(_a) {
     var options = __rest(_a, []);
-    const MTGOptions = apolloServerOptions(options);
-    const { app, path, logger, modelFolderPath, mutationFolderPath } = MTGOptions;
-    new mongoToGQL_1.default(MTGOptions.logger).generate(modelFolderPath, mutationFolderPath)
+    const { app, path, logger, modelFolderPath, mutationFolderPath } = options;
+    new mongoToGQL_1.default(logger).generate(modelFolderPath, mutationFolderPath)
         .then(converted => {
         new apollo_server_express_1.ApolloServer(converted).applyMiddleware({ app, path });
     })

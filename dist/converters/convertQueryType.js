@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function convertQueryType(fieldName, type) {
-    let returnString = ``;
+    let returnString = "";
     if (type.instance === "Date") {
         returnString += `\t${fieldName}_gt: Date\n`;
         returnString += `\t${fieldName}_gte: Date\n`;

@@ -14,7 +14,7 @@ function convertType(type) {
     else if (type.instance === "Array") {
         if (basic.includes(type.caster.instance)) {
             if (type.caster.instance === "Number") {
-                return '[Int]';
+                return "[Int]";
             }
             else {
                 return `[${type.caster.instance}]`;

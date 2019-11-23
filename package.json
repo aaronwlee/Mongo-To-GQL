@@ -12,13 +12,25 @@
   },
   "homepage": "https://github.com/aaronwlee/Mongo-To-GQL#readme",
   "keywords": [
+    "gql",
+    "apollo",
+    "apollo-server",
+    "model to apollo",
+    "mongo to apollo",
+    "mongodb to apollo",
+    "mongodb to apollo-server",
+    "model",
+    "model to gql",
+    "model to graphql",
     "mongo",
+    "mongodb",
     "mongotogql",
     "mongodbtogql",
     "mongodbtographql",
     "mongoose",
+    "mongoose to graphql",
+    "mongoose to gql",
     "graphql",
-    "mongodb",
     "mongodb to graphql",
     "mutation",
     "query",
@@ -29,6 +41,7 @@
   "scripts": {
     "build": "npm tsc",
     "pub": "npm publish --access=public",
+    "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
     "prepub": "npm build"
   },
   "dependencies": {
@@ -46,8 +59,10 @@
     "@types/triple-beam": "^1.3.0",
     "@types/graphql-type-json": "^0.3.2",
     "@types/mongoose": "^5.5.31",
+    "@typescript-eslint/eslint-plugin": "^1.12.0",
+    "@typescript-eslint/parser": "^1.12.0",
+    "eslint": "^5.0.0",
     "ts-node": "^8.5.0",
-    "tsc": "^1.20150623.0",
     "typescript": "^3.7.2"
   }
 }

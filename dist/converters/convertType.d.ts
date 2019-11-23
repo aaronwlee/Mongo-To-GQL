@@ -1,1 +1,1 @@
-export default function convertType(type: any): String;
+export default function convertType(type: any): string;

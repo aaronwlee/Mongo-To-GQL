@@ -1,4 +1,4 @@
-import { Logger } from 'winston';
+import { Logger } from "winston";
 declare class MongoToGQL {
     typeDefs: string;
     private typeQueryDefs;
