@@ -193,20 +193,14 @@ class MongoToGQL {
             this.logger.debug("GQL autogenerater - start");
             const modelPathList = yield this.readModelList(path_1.default.join(process.cwd(), modelFolderPath), type);
             modelPathList.forEach((modelPath) => {
-                try {
-                    const imported = require(path_1.default.resolve(modelPath));
-                    const model = imported.default;
-                    const gqlOption = imported.gqlOption ? imported.gqlOption : {};
-                    this.modelToTypeDefinition(model);
-                    this.modelToQueryDefinition(model);
-                    this.modelToSortKeyDefinition(model);
-                    this.modelToDefaultQuery(model);
-                    this.modelToGetALLQuery(model, gqlOption);
-                }
-                catch (error) {
-                    console.error(error);
-                    throw error;
-                }
+                const imported = require(path_1.default.resolve(modelPath));
+                const model = imported.default;
+                const gqlOption = imported.gqlOption ? imported.gqlOption : {};
+                this.modelToTypeDefinition(model);
+                this.modelToQueryDefinition(model);
+                this.modelToSortKeyDefinition(model);
+                this.modelToDefaultQuery(model);
+                this.modelToGetALLQuery(model, gqlOption);
             });
             this.typeQueryDefs += "} \n";
             this.typeDefs += this.typeQueryDefs;
