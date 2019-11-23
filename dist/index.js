@@ -65,6 +65,7 @@ exports.graphType = {
 class MongoToGQLOptions {
     constructor() {
         this.path = "/graphql";
+        this.mutationFolderPath = null;
         this.logger = logger_1.default;
     }
 }
@@ -72,13 +73,13 @@ exports.MongoToGQLOptions = MongoToGQLOptions;
 function executeApolloServer(_a) {
     var options = __rest(_a, []);
     return __awaiter(this, void 0, void 0, function* () {
+        const { app, path, logger, modelFolderPath, mutationFolderPath } = options;
         try {
-            const { app, path, logger, modelFolderPath, mutationFolderPath } = options;
             const converted = yield new mongoToGQL_1.default(logger).generate(modelFolderPath, mutationFolderPath);
             new apollo_server_express_1.ApolloServer(converted).applyMiddleware({ app, path });
         }
         catch (error) {
-            this.logger.error("mongo-to-gql failed ", error);
+            logger.error("mongo-to-gql failed ", error);
             console.error(error);
         }
     });

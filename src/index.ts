@@ -65,17 +65,17 @@ export class MongoToGQLOptions {
   public app: any;
   public path?: string = "/graphql";
   public modelFolderPath: string;
-  public mutationFolderPath?: string;
+  public mutationFolderPath?: string = null;
   public logger?: Logger = defaultlogger;
 }
 
 export async function executeApolloServer({ ...options }: MongoToGQLOptions) {
+  const { app, path, logger, modelFolderPath, mutationFolderPath } = options;
   try {
-    const { app, path, logger, modelFolderPath, mutationFolderPath } = options;
     const converted = await new MongoToGQL(logger).generate(modelFolderPath, mutationFolderPath)
     new ApolloServer(converted).applyMiddleware({ app, path });
   } catch (error) {
-    this.logger.error("mongo-to-gql failed ", error);
+    logger.error("mongo-to-gql failed ", error);
     console.error(error)
   }
 }
