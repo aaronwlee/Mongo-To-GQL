@@ -10,7 +10,7 @@ export interface Imutation {
     resolver: (parent?: any, args?: any, context?: any, info?: any) => Promise<ReturnType>;
 }
 export interface IgqlOption {
-    populate: string[] | {
+    Populate: string[] | {
         path: string;
         match?: any;
         select?: any;
