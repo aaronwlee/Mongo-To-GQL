@@ -209,7 +209,7 @@ class MongoToGQL {
                 const gqlOption = imported.gqlOption ? imported.gqlOption : {};
                 const errors = validate_1.virtualsValidate(model);
                 if (errors.length > 0) {
-                    this.logger.error(errors.join("\n"));
+                    this.logger.error("error!! => ", errors);
                 }
                 this.modelToTypeDefinition(model);
                 this.modelToQueryDefinition(model);
