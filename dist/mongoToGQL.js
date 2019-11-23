@@ -145,7 +145,7 @@ class MongoToGQL {
         };
         this.typeQueryDefs += `\t${convertCap_1.convertCapAndRemovePlural(model.modelName)}(_id: ID!): ${convertCap_1.convertCapAndRemovePlural(model.modelName)}!\n`;
     }
-    modelToGetALLQuery(model, gqlOption) {
+    modelToGetALLQuery(model, gqlOption = {}) {
         this.resolvers.Query[convertCap_1.convertCapAndAddPlural(model.modelName)] = (_, { filter = {}, page = 0, limit = 10, sort }) => {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
@@ -196,7 +196,7 @@ class MongoToGQL {
                 try {
                     const imported = require(path_1.default.resolve(modelPath));
                     const model = imported.default;
-                    const gqlOption = imported.gqlOption || null;
+                    const gqlOption = imported.gqlOption ? imported.gqlOption : {};
                     this.modelToTypeDefinition(model);
                     this.modelToQueryDefinition(model);
                     this.modelToSortKeyDefinition(model);
@@ -205,6 +205,7 @@ class MongoToGQL {
                 }
                 catch (error) {
                     console.error(error);
+                    throw error;
                 }
             });
             this.typeQueryDefs += "} \n";

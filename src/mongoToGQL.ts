@@ -136,7 +136,7 @@ class MongoToGQL {
     this.typeQueryDefs += `\t${convertCapAndRemovePlural(model.modelName)}(_id: ID!): ${convertCapAndRemovePlural(model.modelName)}!\n`;
   }
 
-  private modelToGetALLQuery(model: any, gqlOption: any) {
+  private modelToGetALLQuery(model: any, gqlOption: any = {}) {
     this.resolvers.Query[convertCapAndAddPlural(model.modelName)] = (_: any, { filter = {}, page = 0, limit = 10, sort }: any) => {
       return new Promise(async (resolve, reject) => {
         try {
@@ -208,7 +208,7 @@ class MongoToGQL {
       try {
         const imported = require(path.resolve(modelPath));
         const model: Model<any> = imported.default;
-        const gqlOption: any = imported.gqlOption || null;
+        const gqlOption: any = imported.gqlOption ? imported.gqlOption : {};
         this.modelToTypeDefinition(model);
         this.modelToQueryDefinition(model);
         this.modelToSortKeyDefinition(model);
@@ -216,6 +216,7 @@ class MongoToGQL {
         this.modelToGetALLQuery(model, gqlOption);
       } catch (error) {
         console.error(error);
+        throw error
       }
     });
 
