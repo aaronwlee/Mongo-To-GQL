@@ -63,7 +63,7 @@ export const graphType = {
 
 export class MongoToGQLOptions {
   public app: any;
-  public path: string = "/graphql";
+  public path?: string = "/graphql";
   public modelFolderPath: string;
   public mutationFolderPath?: string;
   public logger?: Logger = defaultlogger;

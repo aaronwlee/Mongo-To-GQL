@@ -49,7 +49,7 @@ export declare const graphType: {
 };
 export declare class MongoToGQLOptions {
     app: any;
-    path: string;
+    path?: string;
     modelFolderPath: string;
     mutationFolderPath?: string;
     logger?: Logger;
