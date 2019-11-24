@@ -99,6 +99,7 @@ class MongoToGQL {
         Object.keys(embadedMany).forEach(e => {
             modelDef += `\t${e}: ${embadedMany[e]}\n`;
         });
+        console.log(modelDef);
         modelDef += "}\n";
         this.typeDefs += modelDef;
     }
