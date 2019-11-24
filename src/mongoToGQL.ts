@@ -22,7 +22,24 @@ class MongoToGQL {
     }
   };
 
-  public converted: any = () => ({ typeDefs: gql(this.typeDefs), resolvers: this.resolvers })
+  public converted: any = (customResolvers?: any, customTypeDefs?: string) => {
+    if (customResolvers) {
+      Object.keys(customResolvers).forEach(e => {
+        if (typeof customResolvers[e] === "object") {
+          this.resolvers[e] = { ...this.resolvers[e], ...customResolvers[e] }
+        }
+        else {
+          this.resolvers[e] = customResolvers[e]
+        }
+      })
+    }
+    if(customTypeDefs) {
+      this.typeDefs + "\n# Under are custom typeDefs\n\n" + customTypeDefs
+    }
+    return {
+      typeDefs: gql(this.typeDefs), resolvers: this.resolvers
+    }
+  }
 
   private logger: Logger = null;
 
@@ -103,7 +120,7 @@ class MongoToGQL {
         modelDef += convertQueryType(fieldName, model.schema.paths[fieldName]);
       }
     });
-    
+
     Object.keys(model.schema.virtuals).forEach(virtualName => {
       if (virtualName !== "id") {
         modelDef += `\t${virtualName}: JSON\n`
@@ -234,9 +251,9 @@ class MongoToGQL {
     this.typeDefs += returnTypeDef;
   }
 
-  public async generate(modelFolderPath: string, mutationFolderPath?: string, type: string = "js") {
+  public async generate(modelFolderPath: string, mutationFolderPath?: string, customResolvers?: any, customTypeDefs?: string) {
     this.logger.debug("GQL autogenerater - start");
-    const modelPathList: string[] = await this.readModelList(path.join(process.cwd(), modelFolderPath), type);
+    const modelPathList: string[] = await this.readModelList(path.join(process.cwd(), modelFolderPath));
 
     modelPathList.forEach((modelPath: any) => {
       const imported = require(path.resolve(modelPath));
@@ -258,7 +275,7 @@ class MongoToGQL {
 
     if (mutationFolderPath) {
       this.resolvers.Mutation = {};
-      const mutationPathList: string[] = await this.readMutationList(path.join(process.cwd(), mutationFolderPath), type);
+      const mutationPathList: string[] = await this.readMutationList(path.join(process.cwd(), mutationFolderPath));
       await Promise.all(mutationPathList.map(async (mutationPath: any) => {
         const Mutation = require(path.resolve(mutationPath)).default;
         const mutation = new Mutation();
@@ -275,7 +292,7 @@ class MongoToGQL {
 
     this.logger.debug("GQL autogenerater - complete");
 
-    return this.converted();
+    return this.converted(customResolvers, customTypeDefs);
   }
 }
 

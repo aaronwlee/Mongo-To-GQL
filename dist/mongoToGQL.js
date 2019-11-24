@@ -30,7 +30,24 @@ class MongoToGQL {
             JSON: graphql_type_json_1.default,
             Query: {}
         };
-        this.converted = () => ({ typeDefs: apollo_server_express_1.gql(this.typeDefs), resolvers: this.resolvers });
+        this.converted = (customResolvers, customTypeDefs) => {
+            if (customResolvers) {
+                Object.keys(customResolvers).forEach(e => {
+                    if (typeof customResolvers[e] === "object") {
+                        this.resolvers[e] = Object.assign(Object.assign({}, this.resolvers[e]), customResolvers[e]);
+                    }
+                    else {
+                        this.resolvers[e] = customResolvers[e];
+                    }
+                });
+            }
+            if (customTypeDefs) {
+                this.typeDefs + "\n# Under are custom typeDefs\n\n" + customTypeDefs;
+            }
+            return {
+                typeDefs: apollo_server_express_1.gql(this.typeDefs), resolvers: this.resolvers
+            };
+        };
         this.logger = null;
         this.mutationToReturnTypeDefinition = (mutationName) => {
             let returnTypeDef = `\ntype ${convertCap_1.convertFirstUppercase(mutationName)}ReturnType {\n`;
@@ -215,10 +232,10 @@ class MongoToGQL {
         this.modelToReturnTypeDefinition(model.modelName);
         this.typeQueryDefs += `\t${convertCap_1.convertCapAndAddPlural(model.modelName)}(page: Int, limit: Int, filter: ${convertCap_1.convertCapAndRemovePlural(model.modelName)}Query, sort: ${convertCap_1.convertCapAndRemovePlural(model.modelName)}SortKey): ${convertCap_1.convertCapAndRemovePlural(model.modelName)}ReturnType!\n`;
     }
-    generate(modelFolderPath, mutationFolderPath, type = "js") {
+    generate(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs) {
         return __awaiter(this, void 0, void 0, function* () {
             this.logger.debug("GQL autogenerater - start");
-            const modelPathList = yield this.readModelList(path_1.default.join(process.cwd(), modelFolderPath), type);
+            const modelPathList = yield this.readModelList(path_1.default.join(process.cwd(), modelFolderPath));
             modelPathList.forEach((modelPath) => {
                 const imported = require(path_1.default.resolve(modelPath));
                 const model = imported.default;
@@ -237,7 +254,7 @@ class MongoToGQL {
             this.typeDefs += this.typeQueryDefs;
             if (mutationFolderPath) {
                 this.resolvers.Mutation = {};
-                const mutationPathList = yield this.readMutationList(path_1.default.join(process.cwd(), mutationFolderPath), type);
+                const mutationPathList = yield this.readMutationList(path_1.default.join(process.cwd(), mutationFolderPath));
                 yield Promise.all(mutationPathList.map((mutationPath) => __awaiter(this, void 0, void 0, function* () {
                     const Mutation = require(path_1.default.resolve(mutationPath)).default;
                     const mutation = new Mutation();
@@ -250,7 +267,7 @@ class MongoToGQL {
                 this.typeDefs += this.typeMutationDefs;
             }
             this.logger.debug("GQL autogenerater - complete");
-            return this.converted();
+            return this.converted(customResolvers, customTypeDefs);
         });
     }
 }
