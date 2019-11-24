@@ -191,19 +191,24 @@ class MongoToGQL {
                     // map query
                     let queryMap = {};
                     Object.keys(filter).forEach(filterKey => {
-                        let splitedKey = filterKey.split("_");
-                        if (splitedKey[0] === "id") {
-                            splitedKey[0] = "_id";
-                        }
-                        if (splitedKey[1] === "has") {
-                            queryMap[splitedKey[0]] = new RegExp(filter[filterKey], "i");
-                        }
-                        else if (splitedKey[1]) {
-                            queryMap[splitedKey[0]] = {};
-                            queryMap[splitedKey[0]][`$${splitedKey[1]}`] = filter[filterKey];
+                        if (filterKey === "subSearch") {
+                            queryMap = Object.assign(Object.assign({}, queryMap), filter[filterKey]);
                         }
                         else {
-                            queryMap[splitedKey[0]] = filter[filterKey];
+                            let splitedKey = filterKey.split("_");
+                            if (splitedKey[0] === "id") {
+                                splitedKey[0] = "_id";
+                            }
+                            if (splitedKey[1] === "has") {
+                                queryMap[splitedKey[0]] = new RegExp(filter[filterKey], "i");
+                            }
+                            else if (splitedKey[1]) {
+                                queryMap[splitedKey[0]] = {};
+                                queryMap[splitedKey[0]][`$${splitedKey[1]}`] = filter[filterKey];
+                            }
+                            else {
+                                queryMap[splitedKey[0]] = filter[filterKey];
+                            }
                         }
                     });
                     // map sort by key

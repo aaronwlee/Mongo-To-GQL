@@ -34,7 +34,7 @@ class MongoToGQL {
         }
       })
     }
-    if(customTypeDefs) {
+    if (customTypeDefs) {
       this.typeDefs + "\n# Under are custom typeDefs\n\n" + customTypeDefs
     }
     return {
@@ -189,20 +189,25 @@ class MongoToGQL {
           // map query
           let queryMap: any = {};
           Object.keys(filter).forEach(filterKey => {
-            let splitedKey = filterKey.split("_");
-            if (splitedKey[0] === "id") {
-              splitedKey[0] = "_id";
-            }
-
-            if (splitedKey[1] === "has") {
-              queryMap[splitedKey[0]] = new RegExp(filter[filterKey], "i");
-            }
-            else if (splitedKey[1]) {
-              queryMap[splitedKey[0]] = {};
-              queryMap[splitedKey[0]][`$${splitedKey[1]}`] = filter[filterKey];
+            if (filterKey === "subSearch") {
+              queryMap = { ...queryMap, ...filter[filterKey] }
             }
             else {
-              queryMap[splitedKey[0]] = filter[filterKey];
+              let splitedKey = filterKey.split("_");
+              if (splitedKey[0] === "id") {
+                splitedKey[0] = "_id";
+              }
+
+              if (splitedKey[1] === "has") {
+                queryMap[splitedKey[0]] = new RegExp(filter[filterKey], "i");
+              }
+              else if (splitedKey[1]) {
+                queryMap[splitedKey[0]] = {};
+                queryMap[splitedKey[0]][`$${splitedKey[1]}`] = filter[filterKey];
+              }
+              else {
+                queryMap[splitedKey[0]] = filter[filterKey];
+              }
             }
           });
 
