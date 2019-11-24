@@ -30,15 +30,21 @@ function convertType(fieldName, type, gqlOption) {
             return `\t${fieldName}: ${type.instance}\n`;
         }
     }
+    else if (type.instance === "Embedded") {
+        return `\t${fieldName}: JSON\n`;
+    }
     else if (type.instance === "Array") {
+        if (!type.caster.instance) {
+            return `\t${fieldName}: JSON\n`;
+        }
         if (basic.includes(type.caster.instance)) {
             if (type.caster.instance === "Number") {
                 return `\t${fieldName}: [Int]\n`;
             }
-            else if (noSupportToNumber.includes(type.instance)) {
+            else if (noSupportToNumber.includes(type.caster.instance)) {
                 return `\t${fieldName}: [Int]\n`;
             }
-            else if (noSupportToJSON.includes(type.instance)) {
+            else if (noSupportToJSON.includes(type.caster.instance)) {
                 return `\t${fieldName}: JSON\n`;
             }
             else {
