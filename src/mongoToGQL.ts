@@ -93,15 +93,25 @@ class MongoToGQL {
 
   private modelToQueryDefinition(model: any) {
     let modelDef = `\ninput ${convertCapAndRemovePlural(model.modelName)}Query {\n`;
+    let embadedMany: any = {}
+
     Object.keys(model.schema.paths).forEach(fieldName => {
-      if (fieldName !== "__v") {
+      if (fieldName.split('.').length > 1) {
+        embadedMany[fieldName.split('.')[0]] = 'JSON'
+      }
+      else if (fieldName !== "__v") {
         modelDef += convertQueryType(fieldName, model.schema.paths[fieldName]);
       }
     });
+    
     Object.keys(model.schema.virtuals).forEach(virtualName => {
       if (virtualName !== "id") {
-        modelDef += `\t${virtualName}: JSON`
+        modelDef += `\t${virtualName}: JSON\n`
       }
+    })
+
+    Object.keys(embadedMany).forEach(e => {
+      modelDef += `\t${e}: ${embadedMany[e]}\n`
     })
     modelDef += "}\n";
 
@@ -111,7 +121,7 @@ class MongoToGQL {
   private modelToSortKeyDefinition(model: any) {
     let modelDef = `\nenum ${convertCapAndRemovePlural(model.modelName)}SortKey {\n`;
     Object.keys(model.schema.paths).forEach(fieldName => {
-      if (fieldName !== "__v" && fieldName !== "_id") {
+      if (fieldName !== "__v" && fieldName !== "_id" && fieldName.split('.').length === 1) {
         modelDef += `\t${fieldName}_asc\n`;
         modelDef += `\t${fieldName}_desc\n`;
       }
@@ -245,7 +255,6 @@ class MongoToGQL {
 
     this.typeQueryDefs += "} \n";
     this.typeDefs += this.typeQueryDefs;
-    console.log(this.typeDefs)
 
     if (mutationFolderPath) {
       this.resolvers.Mutation = {};
