@@ -3,9 +3,12 @@
 
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 
-*** *New Stable Version!! 2.1.2 ***
-Please don't use previous versions.
+*** *New Stable Version!! 2.2.0 ***
 * critical bug fixed
+* embedded many supported
+* embedded search implemented
+* customizable apollo server options supported
+* customizable resolvers and typeDefs options supported
 
 ## Installing
 
@@ -326,7 +329,9 @@ model auto-generate results will be
 | page    | Pagination                                                                                                                                              |
 | limit   | page per                                                                                                                                                |
 | filter  | each field name with in (array values are in data), has (regex), ne (array values are not in data); basic field name like `name` for finding exact data |
-| sort    | each field name with asc or desc                                                                                                                        |
+| filter field `JSON` | This field only able to filtering exact same JSON structure |
+| filter `subSearch` | you can search the Embedded structure with a JSON string ex) `subSearch: "{'geolocation.latitude': 12.3}"` |
+| sort    | each field name with asc or desc, but you can't get sortkey from JSON type                                                                              |
 
 | `result` | Description                                                                                    |
 |--------------|------------------------------------------------------------------------------------------|
@@ -335,11 +340,15 @@ model auto-generate results will be
 | total | result data count                                                                               |
 ```ts
 query getUsers {
-  Users(page: 0, limit: 4, filter: {name_has: "a", email_in: ["mongo@gql.com", "gql@mongo.com"]}, sort: updatedAt_asc) {
+  Users(page: 0, limit: 4, filter: {name_has: "a", email_in: ["mongo@gql.com", "gql@mongo.com"], subSearch: "{'geolocation.latitude': 12.3}"}, sort: updatedAt_asc) {
     data {
       _id
       name
       email
+      follower {
+        name
+      }
+      product         // This field is JSON type because of the schema that does not have "ref".
     }
     page
     total
@@ -350,6 +359,10 @@ query UserByID {
   User(_id: "5dc8aa758ac3cd40e7ea0c7f") {
     name
     email
+    follower {
+        name
+      }
+    product         // This field is JSON type because of the schema that does not have "ref".
   }
 }
 ```
@@ -375,9 +388,10 @@ class AddUser implements Mutation {
     public inputType = {
         name: graphType.String,
         email: graphType.StringRequire,
-        address: graphType.StringRequire,
+        address: graphType.JSON,
         password: graphType.String,
         follower: graphType.ID,
+        someJson: graphType.Json,             // json type param
         product: graphType.CustomRequire("CustomProductInputType")
     }
 
@@ -448,6 +462,7 @@ mutation AddUser{
     password: "123",
     address: "somewhere",
     follower: "5dd60a152b451e03159d2ead"
+    somejson: {any: "json", types: "available"}
     product: {name: "PerfectOne"}
   }){
     done
