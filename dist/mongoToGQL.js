@@ -130,11 +130,6 @@ class MongoToGQL {
                 modelDef += convertQueryType_1.default(fieldName, model.schema.paths[fieldName]);
             }
         });
-        Object.keys(model.schema.virtuals).forEach(virtualName => {
-            if (virtualName !== "id") {
-                modelDef += `\t${virtualName}: JSON\n`;
-            }
-        });
         Object.keys(embadedMany).forEach(e => {
             modelDef += `\t${e}: ${embadedMany[e]}\n`;
         });
@@ -217,6 +212,7 @@ class MongoToGQL {
                         const splitedKey = sort.split("_");
                         sortMap[splitedKey[0]] = splitedKey[1];
                     }
+                    console.log(queryMap);
                     const data = yield model.find(queryMap).populate(gqlOption && gqlOption.Populate).skip(page * limit).limit(limit).sort(sortMap);
                     resolve({
                         data: data,
