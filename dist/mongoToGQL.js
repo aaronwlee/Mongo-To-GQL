@@ -93,7 +93,7 @@ class MongoToGQL {
         });
         Object.keys(model.schema.virtuals).forEach(virtualName => {
             if (virtualName !== "id") {
-                modelDef += `\t${virtualName}: JSON`;
+                modelDef += `\t${virtualName}: JSON\n`;
             }
         });
         Object.keys(embadedMany).forEach(e => {
