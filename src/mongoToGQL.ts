@@ -9,6 +9,7 @@ import convertQueryType from "./converters/convertQueryType";
 import inputType from "./utils/inputType";
 import { convertCapAndRemovePlural, convertFirstUppercase, convertCapAndAddPlural, convertFirstLowercase } from "./converters/convertCap";
 import { virtualsValidate } from "./utils/validate";
+import { IgqlOption } from "./index";
 
 class MongoToGQL {
   public typeDefs: string = "\nscalar Date\nscalar JSON\n\n";
@@ -75,7 +76,7 @@ class MongoToGQL {
     });
   }
 
-  private modelToTypeDefinition(model: any) {
+  private modelToTypeDefinition(model: any, gqlOption?: IgqlOption) {
     let modelDef = `\ntype ${convertCapAndRemovePlural(model.modelName)} {\n`;
     let embadedMany: any = {}
 
@@ -88,7 +89,7 @@ class MongoToGQL {
           embadedMany[fieldName.split('.')[0]] = 'JSON'
         }
         else {
-          modelDef += `\t${fieldName}: ${convertType(model.schema.paths[fieldName])}\n`;
+          modelDef += convertType(fieldName, model.schema.paths[fieldName], gqlOption);
         }
       }
     });

@@ -43,6 +43,8 @@ export declare const graphType: {
     BooleanRequire: string;
     BooleanArray: string;
     BooleanRequireArray: string;
+    Json: string;
+    JsonRequire: string;
     Custom: (custom: string) => string;
     CustomRequire: (custom: string) => string;
     CustomArray: (custom: string) => string;

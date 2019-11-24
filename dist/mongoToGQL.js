@@ -92,7 +92,7 @@ class MongoToGQL {
             }
         });
     }
-    modelToTypeDefinition(model) {
+    modelToTypeDefinition(model, gqlOption) {
         let modelDef = `\ntype ${convertCap_1.convertCapAndRemovePlural(model.modelName)} {\n`;
         let embadedMany = {};
         Object.keys(model.schema.paths).forEach(fieldName => {
@@ -104,7 +104,7 @@ class MongoToGQL {
                     embadedMany[fieldName.split('.')[0]] = 'JSON';
                 }
                 else {
-                    modelDef += `\t${fieldName}: ${convertType_1.default(model.schema.paths[fieldName])}\n`;
+                    modelDef += convertType_1.default(fieldName, model.schema.paths[fieldName], gqlOption);
                 }
             }
         });

@@ -5,7 +5,8 @@ const inputTypes = [
   "Int", "Int!", "[Int]", "[Int!]",
   "ID", "ID!", "[ID]", "[ID!]",
   "Float", "Float!", "[Float]", "[Float!]",
-  "Boolean", "Boolean!", "[Boolean]", "[Boolean!]"
+  "Boolean", "Boolean!", "[Boolean]", "[Boolean!]",
+  "JSON", "JSON!"
 ];
 
 export default inputTypes;

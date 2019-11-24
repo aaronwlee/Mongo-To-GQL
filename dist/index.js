@@ -57,6 +57,8 @@ exports.graphType = {
     BooleanRequire: "Boolean!",
     BooleanArray: "[Boolean]",
     BooleanRequireArray: "[Boolean!]",
+    Json: "JSON",
+    JsonRequire: "JSON!",
     Custom: (custom) => custom,
     CustomRequire: (custom) => `${custom}!`,
     CustomArray: (custom) => `[${custom}]`,
