@@ -56,6 +56,14 @@ export interface ImongoToGQLOptions {
     logger?: Logger;
     apolloOptions?: any;
 }
-export declare function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<string>;
+interface IresultType {
+    converted: {
+        typeDefs: any;
+        resolvers: any;
+    };
+    pureTypeDefs: string;
+    pureResolvers: any;
+}
+export declare function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<IresultType>;
 declare const _default: (logger?: Logger) => MongoToGQL;
 export default _default;
