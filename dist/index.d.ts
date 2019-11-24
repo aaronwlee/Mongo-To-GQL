@@ -53,7 +53,8 @@ export interface ImongoToGQLOptions {
     modelFolderPath: string;
     mutationFolderPath?: string;
     logger?: Logger;
+    apolloOptions?: any;
 }
-export declare function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<void>;
+export declare function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<string>;
 declare const _default: (logger?: Logger) => MongoToGQL;
 export default _default;

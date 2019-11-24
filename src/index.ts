@@ -67,13 +67,15 @@ export interface ImongoToGQLOptions {
   modelFolderPath: string;
   mutationFolderPath?: string;
   logger?: Logger;
+  apolloOptions?: any;
 }
 
-export async function executeApolloServer({ ...options }: ImongoToGQLOptions) {
-  const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", logger = defaultlogger } = options;
+export async function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<string> {
+  const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", logger = defaultlogger, apolloOptions } = options;
   try {
     const converted = await new MongoToGQL(logger).generate(modelFolderPath, mutationFolderPath)
-    new ApolloServer(converted).applyMiddleware({ app, path });
+    new ApolloServer({ ...apolloOptions, ...converted }).applyMiddleware({ app, path });
+    return converted;
   } catch (error) {
     logger.error(error)
     console.error(error)

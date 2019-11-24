@@ -2,7 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const convertCap_1 = require("./convertCap");
 function convertType(type) {
-    const basic = ["String", "Date", "Number"];
+    const basic = ["String", "Date", "Number", "Boolean"];
+    const noSupportToNumber = [
+        "Buffer",
+        "Decimal128",
+    ];
+    const noSupportToJSON = [
+        "Map",
+        "Mixed"
+    ];
     if (basic.includes(type.instance)) {
         if (type.instance === "Number") {
             return "Int";
@@ -16,6 +24,12 @@ function convertType(type) {
             if (type.caster.instance === "Number") {
                 return "[Int]";
             }
+            else if (noSupportToNumber.includes(type.instance)) {
+                return "[Int]";
+            }
+            else if (noSupportToJSON.includes(type.instance)) {
+                return "JSON";
+            }
             else {
                 return `[${type.caster.instance}]`;
             }
@@ -23,6 +37,12 @@ function convertType(type) {
         else {
             return `[${convertCap_1.convertCapAndRemovePlural(type.caster.options.ref)}]`;
         }
+    }
+    else if (noSupportToNumber.includes(type.instance)) {
+        return "Int";
+    }
+    else if (noSupportToJSON.includes(type.instance)) {
+        return "JSON";
     }
     else if (type.instance === "ObjectID") {
         return convertCap_1.convertCapAndRemovePlural(type.options.ref);

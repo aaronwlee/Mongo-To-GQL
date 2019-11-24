@@ -65,10 +65,11 @@ exports.graphType = {
 function executeApolloServer(_a) {
     var options = __rest(_a, []);
     return __awaiter(this, void 0, void 0, function* () {
-        const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", logger = logger_1.default } = options;
+        const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", logger = logger_1.default, apolloOptions } = options;
         try {
             const converted = yield new mongoToGQL_1.default(logger).generate(modelFolderPath, mutationFolderPath);
-            new apollo_server_express_1.ApolloServer(converted).applyMiddleware({ app, path });
+            new apollo_server_express_1.ApolloServer(Object.assign(Object.assign({}, apolloOptions), converted)).applyMiddleware({ app, path });
+            return converted;
         }
         catch (error) {
             logger.error(error);

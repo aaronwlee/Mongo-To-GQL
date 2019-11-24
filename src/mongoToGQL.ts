@@ -60,19 +60,32 @@ class MongoToGQL {
 
   private modelToTypeDefinition(model: any) {
     let modelDef = `\ntype ${convertCapAndRemovePlural(model.modelName)} {\n`;
+    let embadedMany: any = {}
+
     Object.keys(model.schema.paths).forEach(fieldName => {
       if (fieldName === "_id") {
         modelDef += "\t_id: ID\n";
       }
       else if (fieldName !== "__v") {
-        modelDef += `\t${fieldName}: ${convertType(model.schema.paths[fieldName])}\n`;
+        if (fieldName.split('.').length > 1) {
+          embadedMany[fieldName.split('.')[0]] = 'JSON'
+        }
+        else {
+          modelDef += `\t${fieldName}: ${convertType(model.schema.paths[fieldName])}\n`;
+        }
       }
     });
+
     Object.keys(model.schema.virtuals).forEach(virtualName => {
       if (virtualName !== "id") {
         modelDef += `\t${virtualName}: JSON`
       }
     })
+
+    Object.keys(embadedMany).forEach(e => {
+      modelDef += `\t${e}: ${embadedMany[e]}\n`
+    })
+
     modelDef += "}\n";
 
     this.typeDefs += modelDef;
