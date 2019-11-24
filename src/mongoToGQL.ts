@@ -114,17 +114,12 @@ class MongoToGQL {
     let embadedMany: any = {}
 
     Object.keys(model.schema.paths).forEach(fieldName => {
-      if (fieldName.split('.').length > 1) {
-        embadedMany[fieldName.split('.')[0]] = 'JSON'
-      }
-      else if (fieldName !== "__v") {
+      if (fieldName !== "__v" && fieldName.split('.').length === 1) {
         modelDef += convertQueryType(fieldName, model.schema.paths[fieldName]);
       }
     });
+    modelDef += `\tsubSearch: JSON\n`
 
-    Object.keys(embadedMany).forEach(e => {
-      modelDef += `\t${e}: ${embadedMany[e]}\n`
-    })
     modelDef += "}\n";
 
     this.typeDefs += modelDef;
