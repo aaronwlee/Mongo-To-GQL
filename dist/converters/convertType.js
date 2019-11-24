@@ -47,7 +47,7 @@ function convertType(fieldName, type, gqlOption) {
         }
         else {
             if (populateOptions.includes(fieldName)) {
-                return `\t${fieldName}: [${convertCap_1.convertCapAndRemovePlural(type.caster.options.ref)}]\n`;
+                return `\t${fieldName}: [${type.caster.options.ref ? convertCap_1.convertCapAndRemovePlural(type.caster.options.ref) : "JSON"}]\n`;
             }
             return `\t${fieldName}: [String]\n`;
         }
@@ -60,7 +60,7 @@ function convertType(fieldName, type, gqlOption) {
     }
     else if (type.instance === "ObjectID") {
         if (populateOptions.includes(fieldName)) {
-            return `\t${fieldName}: ${convertCap_1.convertCapAndRemovePlural(type.options.ref)}\n`;
+            return `\t${fieldName}: ${type.options.ref ? convertCap_1.convertCapAndRemovePlural(type.options.ref) : "JSON"}\n`;
         }
         return `\t${fieldName}: ID\n`;
     }

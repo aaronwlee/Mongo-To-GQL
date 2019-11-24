@@ -47,8 +47,8 @@ export default function convertType(fieldName: string, type: any, gqlOption: Igq
 
     }
     else {
-      if(populateOptions.includes(fieldName)) {
-        return `\t${fieldName}: [${convertCapAndRemovePlural(type.caster.options.ref)}]\n`;
+      if (populateOptions.includes(fieldName)) {
+        return `\t${fieldName}: [${type.caster.options.ref ? convertCapAndRemovePlural(type.caster.options.ref) : "JSON"}]\n`;
       }
       return `\t${fieldName}: [String]\n`;
     }
@@ -60,8 +60,8 @@ export default function convertType(fieldName: string, type: any, gqlOption: Igq
     return `\t${fieldName}: JSON\n`
   }
   else if (type.instance === "ObjectID") {
-    if(populateOptions.includes(fieldName)) {
-      return `\t${fieldName}: ${convertCapAndRemovePlural(type.options.ref)}\n`;
+    if (populateOptions.includes(fieldName)) {
+      return `\t${fieldName}: ${type.options.ref ? convertCapAndRemovePlural(type.options.ref) : "JSON"}\n`;
     }
     return `\t${fieldName}: ID\n`;
   }
