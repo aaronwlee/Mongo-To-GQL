@@ -55,6 +55,8 @@ export interface ImongoToGQLOptions {
     mutationFolderPath?: string;
     logger?: Logger;
     apolloOptions?: any;
+    customResolvers?: any;
+    customTypeDefs?: string;
 }
 interface IresultType {
     converted: {
