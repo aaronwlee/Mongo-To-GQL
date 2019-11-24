@@ -2,6 +2,7 @@ import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
 import defaultlogger from "./utils/logger";
 import { ApolloServer } from "apollo-server-express";
+import { Express } from 'express'
 
 export class ReturnType {
   public done: boolean = false;
@@ -62,7 +63,7 @@ export const graphType = {
 };
 
 export interface ImongoToGQLOptions {
-  app: any;
+  app: Express;
   path?: string;
   modelFolderPath: string;
   mutationFolderPath?: string;

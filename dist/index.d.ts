@@ -1,5 +1,6 @@
 import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
+import { Express } from 'express';
 export declare class ReturnType {
     done: boolean;
     error: any;
@@ -48,7 +49,7 @@ export declare const graphType: {
     CustomArrayRequire: (custom: string) => string;
 };
 export interface ImongoToGQLOptions {
-    app: any;
+    app: Express;
     path?: string;
     modelFolderPath: string;
     mutationFolderPath?: string;
