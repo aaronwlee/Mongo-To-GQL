@@ -3,6 +3,7 @@ import { Logger } from "winston";
 import defaultlogger from "./utils/logger";
 import { ApolloServer } from "apollo-server-express";
 import { Express } from 'express'
+import { Model } from "mongoose";
 
 export class ReturnType {
   public done: boolean = false;
@@ -19,6 +20,7 @@ export interface IgqlOption {
   Populate: string[] | {
     path: string;
     match?: any;
+    model?: Model<any>;
     select?: any;
     options?: any;
   }[];

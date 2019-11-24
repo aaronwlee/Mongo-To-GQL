@@ -1,6 +1,7 @@
 import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
 import { Express } from 'express';
+import { Model } from "mongoose";
 export declare class ReturnType {
     done: boolean;
     error: any;
@@ -14,6 +15,7 @@ export interface IgqlOption {
     Populate: string[] | {
         path: string;
         match?: any;
+        model?: Model<any>;
         select?: any;
         options?: any;
     }[];
