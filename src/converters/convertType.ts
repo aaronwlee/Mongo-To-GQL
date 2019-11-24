@@ -50,7 +50,7 @@ export default function convertType(fieldName: string, type: any, gqlOption: Igq
       if(populateOptions.includes(fieldName)) {
         return `\t${fieldName}: [${convertCapAndRemovePlural(type.caster.options.ref)}]\n`;
       }
-      return `\t${fieldName}: [ID]\n`;
+      return `\t${fieldName}: [String]\n`;
     }
   }
   else if (noSupportToNumber.includes(type.instance)) {

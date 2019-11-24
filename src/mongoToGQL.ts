@@ -259,12 +259,12 @@ class MongoToGQL {
     modelPathList.forEach((modelPath: any) => {
       const imported = require(path.resolve(modelPath));
       const model: Model<any> = imported.default;
-      const gqlOption: any = imported.gqlOption ? imported.gqlOption : {};
+      const gqlOption: IgqlOption = imported.gqlOption ? imported.gqlOption : {};
       const errors = virtualsValidate(model)
       if (errors.length > 0) {
         this.logger.error("error!! => ", errors)
       }
-      this.modelToTypeDefinition(model);
+      this.modelToTypeDefinition(model, gqlOption);
       this.modelToQueryDefinition(model);
       this.modelToSortKeyDefinition(model);
       this.modelToDefaultQuery(model);

@@ -244,7 +244,7 @@ class MongoToGQL {
                 if (errors.length > 0) {
                     this.logger.error("error!! => ", errors);
                 }
-                this.modelToTypeDefinition(model);
+                this.modelToTypeDefinition(model, gqlOption);
                 this.modelToQueryDefinition(model);
                 this.modelToSortKeyDefinition(model);
                 this.modelToDefaultQuery(model);
