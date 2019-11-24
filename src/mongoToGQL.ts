@@ -185,7 +185,7 @@ class MongoToGQL {
           let queryMap: any = {};
           Object.keys(filter).forEach(filterKey => {
             if (filterKey === "subSearch") {
-              queryMap = { ...queryMap, ...filter[filterKey] }
+              queryMap = { ...queryMap, ...JSON.parse(filter[filterKey]) }
             }
             else {
               let splitedKey = filterKey.split("_");
