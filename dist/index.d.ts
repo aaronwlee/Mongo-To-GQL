@@ -2,14 +2,14 @@ import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
 import { Express } from 'express';
 import { Model } from "mongoose";
-export declare class ReturnType {
-    done: boolean;
-    error: any;
+export interface IreturnType {
+    done?: any;
+    error?: any;
 }
 export interface Imutation {
     mutationName: string;
     inputType: {};
-    resolver: (parent?: any, args?: any, context?: any, info?: any) => Promise<ReturnType>;
+    resolver: (parent?: any, args?: any, context?: any, info?: any) => Promise<IreturnType>;
 }
 export interface IgqlOption {
     Populate: string[] | {
@@ -47,6 +47,8 @@ export declare const graphType: {
     BooleanRequireArray: string;
     Json: string;
     JsonRequire: string;
+    Upload: string;
+    UploadRequire: string;
     Custom: (custom: string) => string;
     CustomRequire: (custom: string) => string;
     CustomArray: (custom: string) => string;

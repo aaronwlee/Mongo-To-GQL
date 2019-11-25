@@ -239,7 +239,7 @@ class MongoToGQL {
 
   private mutationToReturnTypeDefinition = (mutationName: string) => {
     let returnTypeDef = `\ntype ${convertFirstUppercase(mutationName)}ReturnType {\n`;
-    returnTypeDef += "\tdone: Boolean\n";
+    returnTypeDef += "\tdone: JSON\n";
     returnTypeDef += "\terror: JSON\n";
     returnTypeDef += "}\n";
     this.typeDefs += returnTypeDef;

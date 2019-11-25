@@ -26,12 +26,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoToGQL_1 = __importDefault(require("./mongoToGQL"));
 const logger_1 = __importDefault(require("./utils/logger"));
 const apollo_server_express_1 = require("apollo-server-express");
-class ReturnType {
-    constructor() {
-        this.done = false;
-    }
-}
-exports.ReturnType = ReturnType;
 exports.graphType = {
     String: "String",
     StringRequire: "String!",
@@ -59,6 +53,8 @@ exports.graphType = {
     BooleanRequireArray: "[Boolean!]",
     Json: "JSON",
     JsonRequire: "JSON!",
+    Upload: "Upload",
+    UploadRequire: "Upload!",
     Custom: (custom) => custom,
     CustomRequire: (custom) => `${custom}!`,
     CustomArray: (custom) => `[${custom}]`,

@@ -51,7 +51,7 @@ class MongoToGQL {
         this.logger = null;
         this.mutationToReturnTypeDefinition = (mutationName) => {
             let returnTypeDef = `\ntype ${convertCap_1.convertFirstUppercase(mutationName)}ReturnType {\n`;
-            returnTypeDef += "\tdone: Boolean\n";
+            returnTypeDef += "\tdone: JSON\n";
             returnTypeDef += "\terror: JSON\n";
             returnTypeDef += "}\n";
             this.typeDefs += returnTypeDef;

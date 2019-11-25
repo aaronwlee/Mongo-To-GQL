@@ -5,15 +5,15 @@ import { ApolloServer } from "apollo-server-express";
 import { Express } from 'express'
 import { Model } from "mongoose";
 
-export class ReturnType {
-  public done: boolean = false;
-  public error: any;
+export interface IreturnType {
+  done?: any;
+  error?: any;
 }
 
 export interface Imutation {
   mutationName: string;
   inputType: {};
-  resolver: (parent?: any, args?: any, context?: any, info?: any) => Promise<ReturnType>;
+  resolver: (parent?: any, args?: any, context?: any, info?: any) => Promise<IreturnType>;
 }
 
 export interface IgqlOption {
@@ -60,6 +60,9 @@ export const graphType = {
 
   Json: "JSON",
   JsonRequire: "JSON!",
+
+  Upload: "Upload",
+  UploadRequire: "Upload!",
 
   Custom: (custom: string) => custom,
   CustomRequire: (custom: string) => `${custom}!`,

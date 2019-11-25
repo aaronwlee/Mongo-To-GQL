@@ -2,22 +2,21 @@
 <a href="https://github.com/aaronwlee/Mongo-To-GQL/blob/master/LICENSE.md"><img alt="GitHub license" src="https://img.shields.io/github/license/aaronwlee/Mongo-To-GQL"></a>
 
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
+Just write your mongoose model code, then I generate gql code for you!
 
-*** *New Stable Version!! 2.2.0 ***
-* critical bug fixed
+
+*** *New Stable Version!! 2.2.x ***
 * embedded many supported
 * embedded search implemented
 * customizable apollo server options supported
 * customizable resolvers and typeDefs options supported
+* file upload support via Upload
 
 ## Installing
-
 ```
 $ npm i mongo-to-gql
 ```
-
 Or
-
 ```
 $ yarn add mongo-to-gql
 ```
@@ -25,7 +24,7 @@ $ yarn add mongo-to-gql
 # Getting Started
 Mongo model basic
 
-* export const schema and const model in your mongo model file
+* just write your basic mongoose model with `gqlOption`
 ex) src/model/user.model.ts
 ```ts
 type UserDocument = Document & {
@@ -177,6 +176,24 @@ Result
 ### Let's start it!
 
 ```ts
+import { executeApolloServer } from 'mongo-to-gql';
+import express from "express";
+
+const app = express();
+// or
+executeApolloServer({
+    app: app,
+    modelFolderPath: 'dist/model',
+    mutationFolderPath: 'dist/mutation',
+    path: "/myRouter",
+}).then(result => {
+  console.log(result.pureTypeDefs)  // display result
+})
+```
+
+### options for the `executeApolloServer({})`
+
+```ts
 const options: ImongoToGQLOptions = {
   app: app,
   modelFolderPath: 'dist/model',
@@ -211,6 +228,8 @@ const options: ImongoToGQLOptions = {
 - `customResolvers` is for the extra resolvers
 - `customTypeDefs` is for the extra typeDefs, but it must be string
 
+### Promise results
+
 ```ts
 executeApolloServer(options)
 ```
@@ -229,26 +248,6 @@ interface IresultType {
 ```
 - this interface is the promise results of `executeApolloServer`
 
-
-## How to Initialize
-
-```ts
-import { executeApolloServer } from 'mongo-to-gql';
-import express from "express";
-
-const app = express();
-// or
-executeApolloServer({
-    app: app,
-    modelFolderPath: 'dist/model',
-    mutationFolderPath: 'dist/mutation',
-    path: "/myRouter",
-}).then(result => {
-  console.log(result.pureTypeDefs)  // display result
-})
-
-```
-
 <br>
 <br>
 
@@ -258,26 +257,18 @@ Mongo model with mongoosejs
 
 <br>
 
-### Mutation sample (in mutation folder)
+### Model sample (in model folder)
 > **Path** - src/model/user.model.ts
-- exporting the `model` is mandatory!
+- exporting the `model` as a default is mandatory!
 - `gqlOption` is for joining the foreign table, without this the queries will return the just _ids
+
+Just write your mongoose model code, then I generate gql code for you!
 
 ```ts
 import mongoose, { Schema, Document, Model } from "mongoose";
 import { IgqlOption } from 'mongo-to-gql'
 
-type UserDocument = Document & {
-  email: string;
-  age: number;
-  name: string;
-  password: string;
-  picture: string[];
-  follower: string[];
-  product: string;
-};
-
-const schema: Schema<UserDocument> = new mongoose.Schema<UserDocument>({
+const schema: Schema = new mongoose.Schema({
   email: { type: String, unique: true },
   age: Number,
   name: { type: String, required: true },
@@ -316,7 +307,7 @@ export const gqlOption: IgqlOption = {
   Populate: [{ path: "product", model: Product, select: "name" }, { path: "follower" }]     
 }
 
-export default mongoose.model<UserDocument>("User", schema);
+export default mongoose.model("User", schema);
 ```
 <br>
 <br>
@@ -371,7 +362,7 @@ query UserByID {
 
 ### Mutation sample (in mutation folder)
 > **Path** - src/mutation/addUser.ts
-- `mutationName`, `inputType` and `resolver` are mandatory! Try to use `Mutation` interface, it'll be easier.
+- `mutationName`, `inputType` and `resolver` are mandatory! Try to use `Imutation` interface, it'll be easier.
 - Your mutation function name will save as starting with a lowercase.   
 - Make this sure all extra input types must be declared! ex) ProductInputType
 - The resolver should be an async method, but it's doesn't matter.
@@ -379,10 +370,10 @@ query UserByID {
 ```ts
 import crypto from 'crypto';
 import User from "../model/user.model";
-import { Mutation, graphType, ReturnType } from 'mongo-to-gql'
+import { Imutation, graphType, IreturnType } from 'mongo-to-gql'
 import Product from '../model/product.model';
 
-class AddUser implements Mutation {
+class AddUser implements Imutation {
     mutationName: string = "AddUser"
 
     public inputType = {
@@ -392,22 +383,22 @@ class AddUser implements Mutation {
         password: graphType.String,
         follower: graphType.ID,
         someJson: graphType.Json,             // json type param
-        product: graphType.CustomRequire("CustomProductInputType")
+        product: graphType.CustomRequire("CustomProductInputType") // this will automatically try to find this name of this element in your class
     }
 
-    public CustomProductInputType = {
+    public CustomProductInputType = {       // automation target 
         name: graphType.String
     }
 
     // this must be returned as Promise<ReturnType>
-    public resolver = (_: any, { input }: any): Promise<ReturnType> => {
+    public resolver = (_: any, { input }: any): Promise<IreturnType> => {
         return new Promise(async (resolve, reject) => {
             try {
                 const UserModel = new User().model;
                 const ProductModel = new Product().model;
                 const foundUser = await UserModel.findOne({ _id: input.follower })
                 const newProduct = await ProductModel.create({ name: input.product.name })
-                await UserModel.create({
+                const result = await UserModel.create({
                     name: input.name,
                     address: input.address,
                     email: input.email,
@@ -418,7 +409,7 @@ class AddUser implements Mutation {
                     thisisProducts: newProduct
                 })
                 resolve({
-                    done: true,
+                    done: result,
                     error: null
                 })
             } catch (error) {
@@ -441,6 +432,13 @@ const getAvatar = (Email: string, size: number = 200): string => {
 export default AddUser
 ```
 
+### resolver return type
+```ts
+interface IreturnType {
+  done?: any;             // JSON type
+  error?: any;            // JSON type
+}
+```
 
 ### mutation auto-generate results will be
 
@@ -451,7 +449,7 @@ export default AddUser
 
 | `result` | Description      |
 |--------------|------------------|
-| done  | boolean for result      |
+| done  | anything for a result as JSON      |
 | error  | error as a JSON type    |
 
 ```ts

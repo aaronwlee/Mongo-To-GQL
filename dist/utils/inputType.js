@@ -7,7 +7,8 @@ const inputTypes = [
     "ID", "ID!", "[ID]", "[ID!]",
     "Float", "Float!", "[Float]", "[Float!]",
     "Boolean", "Boolean!", "[Boolean]", "[Boolean!]",
-    "JSON", "JSON!"
+    "JSON", "JSON!",
+    "Upload", "Upload!"
 ];
 exports.default = inputTypes;
 //# sourceMappingURL=inputType.js.map
