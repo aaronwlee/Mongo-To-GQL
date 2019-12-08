@@ -92,8 +92,9 @@ interface IresultType {
 
 export async function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<IresultType> {
   const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", devWithTs = false, apolloOptions, customResolvers, customTypeDefs } = options;
-  if(devWithTs) {
-    defaultlogger.warn("You've selected development with typescript mode.\nMake sure you're using 'nodemon'.")
+  if (devWithTs) {
+    defaultlogger.warn("You've selected development with typescript mode. Make sure you're using 'nodemon'. Have fun! :)")
+    defaultlogger.info("Don't forget to change 'devWithTs' option to false and pure js file when you'll deploy as a production.")
   }
   try {
     const mongotogql = new MongoToGQL(defaultlogger, devWithTs)
@@ -105,8 +106,8 @@ export async function executeApolloServer({ ...options }: ImongoToGQLOptions): P
       pureResolvers: mongotogql.resolvers
     }
   } catch (error) {
-    defaultlogger.error(error)
-    console.error(error)
+    console.error(error.error)
+    throw error
   }
 }
 

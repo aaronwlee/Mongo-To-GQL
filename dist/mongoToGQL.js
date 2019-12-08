@@ -240,40 +240,48 @@ class MongoToGQL {
     }
     generate(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.logger.debug("GQL autogenerater - start");
-            const modelPathList = yield this.readModelList(path_1.default.join(process.cwd(), modelFolderPath));
-            modelPathList.forEach((modelPath) => {
-                const imported = require(path_1.default.resolve(modelPath));
-                const model = imported.default;
-                const gqlOption = imported.gqlOption ? imported.gqlOption : {};
-                const errors = validate_1.virtualsValidate(model);
-                if (errors.length > 0) {
-                    this.logger.error("error!! => ", errors);
+            try {
+                this.logger.debug("GQL autogenerater - start");
+                const modelPathList = yield this.readModelList(path_1.default.join(process.cwd(), modelFolderPath));
+                modelPathList.forEach((modelPath) => {
+                    const imported = require(path_1.default.resolve(modelPath));
+                    const model = imported.default;
+                    const gqlOption = imported.gqlOption ? imported.gqlOption : {};
+                    const errors = validate_1.virtualsValidate(model);
+                    if (errors.length > 0) {
+                        this.logger.error("error!! => ", errors);
+                    }
+                    this.modelToTypeDefinition(model, gqlOption);
+                    this.modelToQueryDefinition(model);
+                    this.modelToSortKeyDefinition(model);
+                    this.modelToDefaultQuery(model);
+                    this.modelToGetALLQuery(model, gqlOption);
+                });
+                this.typeQueryDefs += "} \n";
+                this.typeDefs += this.typeQueryDefs;
+                if (mutationFolderPath) {
+                    this.resolvers.Mutation = {};
+                    const mutationPathList = yield this.readMutationList(path_1.default.join(process.cwd(), mutationFolderPath));
+                    yield Promise.all(mutationPathList.map((mutationPath) => __awaiter(this, void 0, void 0, function* () {
+                        const Mutation = require(path_1.default.resolve(mutationPath)).default;
+                        const mutation = new Mutation();
+                        yield this.mutationToInputDefinition(mutation, "inputType");
+                        this.mutationToReturnTypeDefinition(mutation.mutationName);
+                        this.typeMutationDefs += `\t${convertCap_1.convertFirstLowercase(mutation.mutationName)}(input: ${convertCap_1.convertFirstUppercase(mutation.mutationName)}InputType!): ${convertCap_1.convertFirstUppercase(mutation.mutationName)}ReturnType\n`;
+                        this.resolvers.Mutation[convertCap_1.convertFirstLowercase(mutation.mutationName)] = mutation.resolver;
+                    })));
+                    this.typeMutationDefs += "} \n";
+                    this.typeDefs += this.typeMutationDefs;
                 }
-                this.modelToTypeDefinition(model, gqlOption);
-                this.modelToQueryDefinition(model);
-                this.modelToSortKeyDefinition(model);
-                this.modelToDefaultQuery(model);
-                this.modelToGetALLQuery(model, gqlOption);
-            });
-            this.typeQueryDefs += "} \n";
-            this.typeDefs += this.typeQueryDefs;
-            if (mutationFolderPath) {
-                this.resolvers.Mutation = {};
-                const mutationPathList = yield this.readMutationList(path_1.default.join(process.cwd(), mutationFolderPath));
-                yield Promise.all(mutationPathList.map((mutationPath) => __awaiter(this, void 0, void 0, function* () {
-                    const Mutation = require(path_1.default.resolve(mutationPath)).default;
-                    const mutation = new Mutation();
-                    yield this.mutationToInputDefinition(mutation, "inputType");
-                    this.mutationToReturnTypeDefinition(mutation.mutationName);
-                    this.typeMutationDefs += `\t${convertCap_1.convertFirstLowercase(mutation.mutationName)}(input: ${convertCap_1.convertFirstUppercase(mutation.mutationName)}InputType!): ${convertCap_1.convertFirstUppercase(mutation.mutationName)}ReturnType\n`;
-                    this.resolvers.Mutation[convertCap_1.convertFirstLowercase(mutation.mutationName)] = mutation.resolver;
-                })));
-                this.typeMutationDefs += "} \n";
-                this.typeDefs += this.typeMutationDefs;
+                this.logger.debug("GQL autogenerater - complete");
+                return this.converted(customResolvers, customTypeDefs);
             }
-            this.logger.debug("GQL autogenerater - complete");
-            return this.converted(customResolvers, customTypeDefs);
+            catch (error) {
+                throw {
+                    error: error,
+                    typeDefs: this.typeDefs
+                };
+            }
         });
     }
 }
