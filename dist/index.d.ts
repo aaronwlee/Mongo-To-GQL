@@ -59,7 +59,7 @@ export interface ImongoToGQLOptions {
     path?: string;
     modelFolderPath: string;
     mutationFolderPath?: string;
-    logger?: Logger;
+    devWithTs?: boolean;
     apolloOptions?: any;
     customResolvers?: any;
     customTypeDefs?: string;
@@ -73,5 +73,5 @@ interface IresultType {
     pureResolvers: any;
 }
 export declare function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<IresultType>;
-declare const _default: (logger?: Logger) => MongoToGQL;
+declare const _default: (logger?: Logger, devWithTs?: boolean) => MongoToGQL;
 export default _default;

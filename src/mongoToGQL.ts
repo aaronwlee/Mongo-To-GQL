@@ -15,6 +15,8 @@ class MongoToGQL {
   public typeDefs: string = "\nscalar Date\nscalar JSON\n\n";
   private typeQueryDefs: string = "\ntype Query {\n"
   private typeMutationDefs: string = "\ntype Mutation {\n"
+  private type: string = 'js';
+  
 
   public resolvers: any = {
     JSON: GraphQLJSON,
@@ -44,16 +46,19 @@ class MongoToGQL {
 
   private logger: Logger = null;
 
-  public constructor(gqlLogger: Logger) {
+  public constructor(gqlLogger: Logger, devWithTs?: boolean) {
     this.logger = gqlLogger;
+    if(devWithTs) {
+      this.type = 'ts';
+    }
   }
 
-  private readModelList(modelFolderPath: string, type: string = "js") {
+  private readModelList(modelFolderPath: string) {
     return new Promise<string[]>((resolve, reject) => {
-      const modelPathList = glob.sync(`${modelFolderPath}/*.${type}`);
+      const modelPathList = glob.sync(`${modelFolderPath}/*.${this.type}`);
       if (modelPathList.length === 0) {
-        this.logger.error(`GQL autogenerater - path: '${modelFolderPath}/*.${type}' - found 0 files`);
-        reject(`path: '${modelFolderPath}/*.${type}' - found 0 files`);
+        this.logger.error(`GQL autogenerater - path: '${modelFolderPath}/*.${this.type}' - found 0 files`);
+        reject(`path: '${modelFolderPath}/*.${this.type}' - found 0 files`);
       }
       else {
         this.logger.debug(`GQL autogenerater - found ${modelPathList.length} models`);
@@ -62,12 +67,12 @@ class MongoToGQL {
     });
   }
 
-  private readMutationList(mutationFolderPath: string, type: string = "js") {
+  private readMutationList(mutationFolderPath: string) {
     return new Promise<string[]>((resolve, reject) => {
-      const modelPathList = glob.sync(`${mutationFolderPath}/*.${type}`);
+      const modelPathList = glob.sync(`${mutationFolderPath}/*.${this.type}`);
       if (modelPathList.length === 0) {
-        this.logger.error(`GQL autogenerater - path: '${mutationFolderPath}/*.${type}' - found 0 files`);
-        reject(`path: '${mutationFolderPath}/*.${type}' - found 0 files`);
+        this.logger.error(`GQL autogenerater - path: '${mutationFolderPath}/*.${this.type}' - found 0 files`);
+        reject(`path: '${mutationFolderPath}/*.${this.type}' - found 0 files`);
       }
       else {
         this.logger.debug(`GQL autogenerater - found ${modelPathList.length} mutations`);
@@ -254,7 +259,7 @@ class MongoToGQL {
     this.typeDefs += returnTypeDef;
   }
 
-  public async generate(modelFolderPath: string, mutationFolderPath?: string, customResolvers?: any, customTypeDefs?: string) {
+  public async generate(modelFolderPath: string, mutationFolderPath?: string, customResolvers?: any, customTypeDefs?: string ) {
     this.logger.debug("GQL autogenerater - start");
     const modelPathList: string[] = await this.readModelList(path.join(process.cwd(), modelFolderPath));
 

@@ -75,7 +75,7 @@ export interface ImongoToGQLOptions {
   path?: string;
   modelFolderPath: string;
   mutationFolderPath?: string;
-  logger?: Logger;
+  devWithTs?: boolean;
   apolloOptions?: any;
   customResolvers?: any;
   customTypeDefs?: string;
@@ -91,9 +91,12 @@ interface IresultType {
 }
 
 export async function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<IresultType> {
-  const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", logger = defaultlogger, apolloOptions, customResolvers, customTypeDefs } = options;
+  const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", devWithTs = false, apolloOptions, customResolvers, customTypeDefs } = options;
+  if(devWithTs) {
+    defaultlogger.warn("You've selected development with typescript mode.\nMake sure you're using 'nodemon'.")
+  }
   try {
-    const mongotogql = new MongoToGQL(logger)
+    const mongotogql = new MongoToGQL(defaultlogger, devWithTs)
     const converted = await mongotogql.generate(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs)
     new ApolloServer({ ...apolloOptions, ...converted }).applyMiddleware({ app, path });
     return {
@@ -102,9 +105,9 @@ export async function executeApolloServer({ ...options }: ImongoToGQLOptions): P
       pureResolvers: mongotogql.resolvers
     }
   } catch (error) {
-    logger.error(error)
+    defaultlogger.error(error)
     console.error(error)
   }
 }
 
-export default (logger: Logger = defaultlogger) => new MongoToGQL(logger);
+export default (logger: Logger = defaultlogger, devWithTs: boolean = false) => new MongoToGQL(logger, devWithTs);

@@ -63,9 +63,12 @@ exports.graphType = {
 function executeApolloServer(_a) {
     var options = __rest(_a, []);
     return __awaiter(this, void 0, void 0, function* () {
-        const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", logger = logger_1.default, apolloOptions, customResolvers, customTypeDefs } = options;
+        const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", devWithTs = false, apolloOptions, customResolvers, customTypeDefs } = options;
+        if (devWithTs) {
+            logger_1.default.warn("You've selected development with typescript mode.\nMake sure you're using 'nodemon'.");
+        }
         try {
-            const mongotogql = new mongoToGQL_1.default(logger);
+            const mongotogql = new mongoToGQL_1.default(logger_1.default, devWithTs);
             const converted = yield mongotogql.generate(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs);
             new apollo_server_express_1.ApolloServer(Object.assign(Object.assign({}, apolloOptions), converted)).applyMiddleware({ app, path });
             return {
@@ -75,11 +78,11 @@ function executeApolloServer(_a) {
             };
         }
         catch (error) {
-            logger.error(error);
+            logger_1.default.error(error);
             console.error(error);
         }
     });
 }
 exports.executeApolloServer = executeApolloServer;
-exports.default = (logger = logger_1.default) => new mongoToGQL_1.default(logger);
+exports.default = (logger = logger_1.default, devWithTs = false) => new mongoToGQL_1.default(logger, devWithTs);
 //# sourceMappingURL=index.js.map

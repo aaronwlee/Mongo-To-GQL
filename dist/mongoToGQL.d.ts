@@ -3,10 +3,11 @@ declare class MongoToGQL {
     typeDefs: string;
     private typeQueryDefs;
     private typeMutationDefs;
+    private type;
     resolvers: any;
     converted: any;
     private logger;
-    constructor(gqlLogger: Logger);
+    constructor(gqlLogger: Logger, devWithTs?: boolean);
     private readModelList;
     private readMutationList;
     private modelToTypeDefinition;
