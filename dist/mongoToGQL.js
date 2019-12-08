@@ -175,10 +175,13 @@ class MongoToGQL {
             resolve();
         });
     }
-    modelToDefaultQuery(model) {
-        this.resolvers.Query[convertCap_1.convertCapAndRemovePlural(model.modelName)] = (_, { _id }) => {
+    modelToDefaultQuery(model, gqlOption = { Auth: false }) {
+        this.resolvers.Query[convertCap_1.convertCapAndRemovePlural(model.modelName)] = (_, { _id }, { user }) => {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
+                    if (gqlOption.Auth && _.isEmpty(user)) {
+                        throw new apollo_server_express_1.AuthenticationError("Authentication required!");
+                    }
                     const data = model.findById(_id);
                     resolve(data);
                 }
@@ -189,10 +192,13 @@ class MongoToGQL {
         };
         this.typeQueryDefs += `\t${convertCap_1.convertCapAndRemovePlural(model.modelName)}(_id: ID!): ${convertCap_1.convertCapAndRemovePlural(model.modelName)}!\n`;
     }
-    modelToGetALLQuery(model, gqlOption = {}) {
-        this.resolvers.Query[convertCap_1.convertCapAndAddPlural(model.modelName)] = (_, { filter = {}, page = 0, limit = 10, sort }) => {
+    modelToGetALLQuery(model, gqlOption = { Auth: false }) {
+        this.resolvers.Query[convertCap_1.convertCapAndAddPlural(model.modelName)] = (_, { filter = {}, page = 0, limit = 10, sort }, { user }) => {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
+                    if (gqlOption.Auth && _.isEmpty(user)) {
+                        throw new apollo_server_express_1.AuthenticationError("Authentication required!");
+                    }
                     // map query
                     let queryMap = {};
                     Object.keys(filter).forEach(filterKey => {
@@ -254,7 +260,7 @@ class MongoToGQL {
                     this.modelToTypeDefinition(model, gqlOption);
                     this.modelToQueryDefinition(model);
                     this.modelToSortKeyDefinition(model);
-                    this.modelToDefaultQuery(model);
+                    this.modelToDefaultQuery(model, gqlOption);
                     this.modelToGetALLQuery(model, gqlOption);
                 });
                 this.typeQueryDefs += "} \n";

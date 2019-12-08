@@ -1,6 +1,6 @@
 import path from "path";
 import glob from "glob";
-import { gql } from "apollo-server-express";
+import { gql, AuthenticationError } from "apollo-server-express";
 import { Logger } from "winston";
 import convertType from "./converters/convertType";
 import GraphQLJSON from "graphql-type-json";
@@ -9,7 +9,8 @@ import convertQueryType from "./converters/convertQueryType";
 import inputType from "./utils/inputType";
 import { convertCapAndRemovePlural, convertFirstUppercase, convertCapAndAddPlural, convertFirstLowercase } from "./converters/convertCap";
 import { virtualsValidate } from "./utils/validate";
-import { IgqlOption } from "./index";
+import { IgqlOption, Icontext } from "./index";
+import _ from 'lodash'
 
 class MongoToGQL {
   public typeDefs: string = "\nscalar Date\nscalar JSON\n\n";
@@ -173,10 +174,13 @@ class MongoToGQL {
     });
   }
 
-  private modelToDefaultQuery(model: any) {
-    this.resolvers.Query[convertCapAndRemovePlural(model.modelName)] = (_: any, { _id }: any) => {
+  private modelToDefaultQuery(model: any, gqlOption: IgqlOption = { Auth: false }) {
+    this.resolvers.Query[convertCapAndRemovePlural(model.modelName)] = (_: any, { _id }: any, { user }: Icontext) => {
       return new Promise(async (resolve, reject) => {
         try {
+          if (gqlOption.Auth && _.isEmpty(user)) {
+            throw new AuthenticationError("Authentication required!")
+          }
           const data = model.findById(_id);
           resolve(data);
         } catch (error) {
@@ -188,10 +192,13 @@ class MongoToGQL {
     this.typeQueryDefs += `\t${convertCapAndRemovePlural(model.modelName)}(_id: ID!): ${convertCapAndRemovePlural(model.modelName)}!\n`;
   }
 
-  private modelToGetALLQuery(model: any, gqlOption: any = {}) {
-    this.resolvers.Query[convertCapAndAddPlural(model.modelName)] = (_: any, { filter = {}, page = 0, limit = 10, sort }: any) => {
+  private modelToGetALLQuery(model: any, gqlOption: IgqlOption = { Auth: false }) {
+    this.resolvers.Query[convertCapAndAddPlural(model.modelName)] = (_: any, { filter = {}, page = 0, limit = 10, sort }: any, { user }: Icontext) => {
       return new Promise(async (resolve, reject) => {
         try {
+          if (gqlOption.Auth && _.isEmpty(user)) {
+            throw new AuthenticationError("Authentication required!")
+          }
           // map query
           let queryMap: any = {};
           Object.keys(filter).forEach(filterKey => {
@@ -275,7 +282,7 @@ class MongoToGQL {
         this.modelToTypeDefinition(model, gqlOption);
         this.modelToQueryDefinition(model);
         this.modelToSortKeyDefinition(model);
-        this.modelToDefaultQuery(model);
+        this.modelToDefaultQuery(model, gqlOption);
         this.modelToGetALLQuery(model, gqlOption);
       });
 
@@ -302,7 +309,7 @@ class MongoToGQL {
       this.logger.debug("GQL autogenerater - complete");
 
       return this.converted(customResolvers, customTypeDefs);
-    } catch(error) {
+    } catch (error) {
       throw {
         error: error,
         typeDefs: this.typeDefs

@@ -2,6 +2,9 @@ import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
 import { Express } from 'express';
 import { Model } from "mongoose";
+export interface Icontext {
+    user: any;
+}
 export interface IreturnType {
     done?: any;
     error?: any;
@@ -9,16 +12,17 @@ export interface IreturnType {
 export interface Imutation {
     mutationName: string;
     inputType: {};
-    resolver: (parent?: any, args?: any, context?: any, info?: any) => Promise<IreturnType>;
+    resolver: (parent?: any, args?: any, context?: Icontext, info?: any) => Promise<IreturnType>;
 }
 export interface IgqlOption {
-    Populate: string[] | {
+    Populate?: string[] | {
         path: string;
         match?: any;
         model?: Model<any>;
         select?: any;
         options?: any;
     }[];
+    Auth?: boolean;
 }
 export declare const graphType: {
     String: string;
@@ -62,6 +66,7 @@ export interface ImongoToGQLOptions {
     devWithTs?: boolean;
     apolloOptions?: any;
     customResolvers?: any;
+    context?: ({ req }: any) => Icontext;
     customTypeDefs?: string;
 }
 interface IresultType {
