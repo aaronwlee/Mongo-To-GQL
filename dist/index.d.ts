@@ -1,5 +1,6 @@
 import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
+import { ApolloServerExpressConfig } from "apollo-server-express";
 import { Express } from 'express';
 import { Model } from "mongoose";
 export interface Icontext {
@@ -64,7 +65,7 @@ export interface ImongoToGQLOptions {
     modelFolderPath: string;
     mutationFolderPath?: string;
     devWithTs?: boolean;
-    apolloOptions?: any;
+    apolloOptions?: ApolloServerExpressConfig;
     customResolvers?: any;
     context?: ({ req }: any) => Icontext;
     customTypeDefs?: string;

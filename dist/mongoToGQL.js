@@ -179,7 +179,7 @@ class MongoToGQL {
         this.resolvers.Query[convertCap_1.convertCapAndRemovePlural(model.modelName)] = (_, { _id }, { user }) => {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
-                    if (gqlOption.Auth && _.isEmpty(user)) {
+                    if (gqlOption.Auth && !user) {
                         throw new apollo_server_express_1.AuthenticationError("Authentication required!");
                     }
                     const data = model.findById(_id);
@@ -196,7 +196,7 @@ class MongoToGQL {
         this.resolvers.Query[convertCap_1.convertCapAndAddPlural(model.modelName)] = (_, { filter = {}, page = 0, limit = 10, sort }, { user }) => {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
-                    if (gqlOption.Auth && _.isEmpty(user)) {
+                    if (gqlOption.Auth && !user) {
                         throw new apollo_server_express_1.AuthenticationError("Authentication required!");
                     }
                     // map query

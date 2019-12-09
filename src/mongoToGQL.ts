@@ -10,14 +10,12 @@ import inputType from "./utils/inputType";
 import { convertCapAndRemovePlural, convertFirstUppercase, convertCapAndAddPlural, convertFirstLowercase } from "./converters/convertCap";
 import { virtualsValidate } from "./utils/validate";
 import { IgqlOption, Icontext } from "./index";
-import _ from 'lodash'
 
 class MongoToGQL {
   public typeDefs: string = "\nscalar Date\nscalar JSON\n\n";
   private typeQueryDefs: string = "\ntype Query {\n"
   private typeMutationDefs: string = "\ntype Mutation {\n"
   private type: string = 'js';
-
 
   public resolvers: any = {
     JSON: GraphQLJSON,
@@ -178,7 +176,7 @@ class MongoToGQL {
     this.resolvers.Query[convertCapAndRemovePlural(model.modelName)] = (_: any, { _id }: any, { user }: Icontext) => {
       return new Promise(async (resolve, reject) => {
         try {
-          if (gqlOption.Auth && _.isEmpty(user)) {
+          if (gqlOption.Auth && !user) {
             throw new AuthenticationError("Authentication required!")
           }
           const data = model.findById(_id);
@@ -196,7 +194,7 @@ class MongoToGQL {
     this.resolvers.Query[convertCapAndAddPlural(model.modelName)] = (_: any, { filter = {}, page = 0, limit = 10, sort }: any, { user }: Icontext) => {
       return new Promise(async (resolve, reject) => {
         try {
-          if (gqlOption.Auth && _.isEmpty(user)) {
+          if (gqlOption.Auth && !user) {
             throw new AuthenticationError("Authentication required!")
           }
           // map query

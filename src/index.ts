@@ -1,7 +1,7 @@
 import MongoToGQL from "./mongoToGQL";
 import { Logger } from "winston";
 import defaultlogger from "./utils/logger";
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer, ApolloServerExpressConfig } from "apollo-server-express";
 import { Express } from 'express'
 import { Model } from "mongoose";
 
@@ -83,7 +83,7 @@ export interface ImongoToGQLOptions {
   modelFolderPath: string;
   mutationFolderPath?: string;
   devWithTs?: boolean;
-  apolloOptions?: any;
+  apolloOptions?: ApolloServerExpressConfig;
   customResolvers?: any;
   context?: ({ req }: any) => Icontext;
   customTypeDefs?: string;
@@ -99,7 +99,7 @@ interface IresultType {
 }
 
 export async function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<IresultType> {
-  const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", devWithTs = false, apolloOptions, customResolvers, customTypeDefs } = options;
+  const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", devWithTs = false, apolloOptions, context, customResolvers, customTypeDefs } = options;
   if (devWithTs) {
     defaultlogger.warn("You've selected development with typescript mode. Make sure you're using 'nodemon'. Have fun! :)")
     defaultlogger.info("Don't forget to change 'devWithTs' option to false and pure js file when you'll deploy as a production.")
@@ -107,7 +107,16 @@ export async function executeApolloServer({ ...options }: ImongoToGQLOptions): P
   try {
     const mongotogql = new MongoToGQL(defaultlogger, devWithTs)
     const converted = await mongotogql.generate(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs)
-    new ApolloServer({ ...apolloOptions, ...converted }).applyMiddleware({ app, path });
+    new ApolloServer({
+      ...apolloOptions, ...converted, context: context,
+      playground:
+        process.env.NODE_ENV === 'production' ?
+          false :
+          {
+            settings: { 'request.credentials': 'include' }
+          }
+    }).applyMiddleware({ app, path });
+
     return {
       converted: converted,
       pureTypeDefs: mongotogql.typeDefs,

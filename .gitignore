@@ -1,3 +1,4 @@
 node_modules
 .vs
 yarn-error.log
+debug.log

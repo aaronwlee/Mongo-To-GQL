@@ -1,7 +1,7 @@
 {
   "name": "mongo-to-gql",
   "email": "aaronwoolee95@gmail.com",
-  "version": "2.2.4",
+  "version": "2.2.10",
   "description": "mongodb model to graphql for apollo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -41,6 +41,7 @@
   "scripts": {
     "build": "npm tsc",
     "pub": "npm publish --access=public",
+    "test": "jest",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
     "prepub": "npm build"
   },
@@ -58,6 +59,7 @@
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/graphql-type-json": "^0.3.2",
+    "@types/jest": "^24.0.23",
     "@types/lodash": "^4.14.149",
     "@types/mongoose": "^5.5.31",
     "@types/node-fetch": "^2.5.4",
@@ -65,6 +67,8 @@
     "@typescript-eslint/eslint-plugin": "^1.12.0",
     "@typescript-eslint/parser": "^1.12.0",
     "eslint": "^5.0.0",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.2.0",
     "ts-node": "^8.5.0",
     "typescript": "^3.7.2"
   }

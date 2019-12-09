@@ -4,13 +4,18 @@
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 Just write your mongoose model code, then I generate gql code for you!
 
-
-*** *New Stable Version!! 2.2.x ***
+*** *New Stable Version!! 2.2.7 ***
 * embedded many supported
 * embedded search implemented
 * customizable apollo server options supported
 * customizable resolvers and typeDefs options supported
 * file upload support via Upload
+
+*** *2.2.10 ***
+* authentication method for the apollo server has added
+* auth boolean option has added into the gqloption
+* Now you able to connect with the typescript model and mutation in development mode. Set the 'devWithTs' option and use the nodemon. 
+
 
 ## Installing
 ```
@@ -69,7 +74,8 @@ schema.virtual("extra").get(async function () {
 // if you use has many or has one, you must export this option with exact name of const 
 export const gqlOption: IgqlOption = {
   // if you didn't declare `ref` in the schema, you have to specify the target model.
-  Populate: [{ path: "product", model: Product, select: "name" }, { path: "follower" }]     
+  Populate: [{ path: "product", model: Product, select: "name" }, { path: "follower" }],
+  Auth: true    // authentication option. if the apollo server context option sends an appropriate 'user', this model's GQL query can be accessible.  
 }
 
 export default mongoose.model<UserDocument>("User", schema);
@@ -175,6 +181,27 @@ Result
 
 ### Let's start it!
 
+* Development mode | start with nodemon your main ts file
+
+```ts
+import { executeApolloServer } from 'mongo-to-gql';
+import express from "express";
+
+const app = express();
+// or
+executeApolloServer({
+    app: app,
+    devWithTs: true,
+    modelFolderPath: 'src/model',
+    mutationFolderPath: 'src/mutation',
+    path: "/myRouter",
+}).then(result => {
+  console.log(result.pureTypeDefs)  // display result
+})
+```
+
+* Production Mode
+
 ```ts
 import { executeApolloServer } from 'mongo-to-gql';
 import express from "express";
@@ -199,10 +226,19 @@ const options: ImongoToGQLOptions = {
   modelFolderPath: 'dist/model',
   
   // optional
+  devWithTs: true,                  // option for using typescript folder path. for the auto build in development, you must use nodemon.
   mutationFolderPath: 'dist/mutation',
   path: '/thisisnotdefaultpath',
-  logger: logger,        // winston logger,
-  apolloOptions: {...},  //https://www.apollographql.com/docs/apollo-server/api/apollo-server/
+  context: ({ req }: any) => {      // https://www.apollographql.com/docs/apollo-server/security/authentication/
+    const user = req.session.user;
+
+    return { user };
+  }
+  apolloOptions: {                  // https://www.apollographql.com/docs/apollo-server/api/apollo-server/
+    cacheControl: {
+      defaultMaxAge: 5,
+    }
+  },  
   customTypeDefs: `
   type Custom {
     something: String
@@ -220,10 +256,11 @@ const options: ImongoToGQLOptions = {
 }
 ```
 - `app` is your express app
-- `modelFolderPath` should be your pure js model folder which is starting with `pwd` path
-- `mutationFolderPath` should be your pure js mutation folder which is starting with `pwd` path
+- `modelFolderPath` should be your pure js model folder which is starting with `pwd` path | but if you set `devWithTs` option to true, then you can able to use the ts model folder.
+- `mutationFolderPath` should be your pure js mutation folder which is starting with `pwd` path | but if you set `devWithTs` option to true, then you can able to use the ts mutation folder.
+- `devWithTs` this option is enable to use your typescript folder path only for development environment. must use nodemon.
 - `path` is for graphql path config, default router is `/graphql`
-- `logger` is your customizable logger config, this logger is basically using winstonjs
+- `context` is for authenticating your resolvers. you can basically pass the user parameter or token.  
 - `apolloOptions` this option for ApolloServer's param
 - `customResolvers` is for the extra resolvers
 - `customTypeDefs` is for the extra typeDefs, but it must be string
@@ -304,7 +341,8 @@ schema.virtual("extra").get(async function () {
 // if you use has many or has one, you must export this option with exact name of const 
 export const gqlOption: IgqlOption = {
   // if you didn't declare `ref` in the schema, you have to specify the target model.
-  Populate: [{ path: "product", model: Product, select: "name" }, { path: "follower" }]     
+  Populate: [{ path: "product", model: Product, select: "name" }, { path: "follower" }],
+  Auth: true     // authentication option. if the apollo server context option sends an appropriate 'user', this model's GQL query can be accessible.
 }
 
 export default mongoose.model("User", schema);
@@ -391,9 +429,14 @@ class AddUser implements Imutation {
     }
 
     // this must be returned as Promise<ReturnType>
-    public resolver = (_: any, { input }: any): Promise<IreturnType> => {
+    public resolver = (_: any, { input }: any, { user }: any): Promise<IreturnType> => {
         return new Promise(async (resolve, reject) => {
             try {
+                // if you set the context option and passed an appropriate user, you can validate the authentication via the third parameter of the resolver.
+                if(!user) {
+                  throw "auth required"
+                }
+                // 
                 const UserModel = new User().model;
                 const ProductModel = new Product().model;
                 const foundUser = await UserModel.findOne({ _id: input.follower })
@@ -473,7 +516,7 @@ mutation AddUser{
 ## Authors
 
 * ***Aaron Wooseok Lee*** - *Initial work* - [aaronwlee](https://github.com/aaronwlee)
-* ***Eric Xizheng Ding*** - *Origin work* - [dingxizheng](https://github.com/dingxizheng/model_to_graphql)
+* ***Eric Xizheng Ding*** - *Inspiratied* - [dingxizheng](https://github.com/dingxizheng/model_to_graphql)
 
 ## License
 
