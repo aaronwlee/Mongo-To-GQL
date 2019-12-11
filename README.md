@@ -400,7 +400,7 @@ query UserByID {
 
 ### Mutation sample (in mutation folder)
 > **Path** - src/mutation/addUser.ts
-- `mutationName`, `inputType` and `resolver` are mandatory! Try to use `Imutation` interface, it'll be easier.
+- `inputType` and `resolver` are mandatory! Try to use `Imutation` interface, it'll be easier.
 - Your mutation function name will save as starting with a lowercase.   
 - Make this sure all extra input types must be declared! ex) ProductInputType
 - The resolver should be an async method, but it's doesn't matter.
@@ -411,9 +411,8 @@ import User from "../model/user.model";
 import { Imutation, graphType, IreturnType } from 'mongo-to-gql'
 import Product from '../model/product.model';
 
+// class name is your mutation's name
 class AddUser implements Imutation {
-    mutationName: string = "AddUser"
-
     public inputType = {
         name: graphType.String,
         email: graphType.StringRequire,
@@ -478,8 +477,8 @@ export default AddUser
 ### resolver return type
 ```ts
 interface IreturnType {
-  done?: any;             // JSON type
-  error?: any;            // JSON type
+  done: any;             // JSON type
+  error: any;            // JSON type
 }
 ```
 

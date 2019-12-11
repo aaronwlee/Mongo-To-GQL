@@ -7,13 +7,12 @@ export interface Icontext {
     user: any;
 }
 export interface IreturnType {
-    done?: any;
-    error?: any;
+    done: any;
+    error: any;
 }
 export interface Imutation {
-    mutationName: string;
     inputType: {};
-    resolver: (parent?: any, args?: any, context?: Icontext, info?: any) => Promise<IreturnType>;
+    resolver: (parent?: any, args?: any, context?: any | Icontext, info?: any) => Promise<IreturnType>;
 }
 export interface IgqlOption {
     Populate?: string[] | {

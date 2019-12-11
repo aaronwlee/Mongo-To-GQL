@@ -56,7 +56,7 @@ class MongoToGQL {
     return new Promise<string[]>((resolve, reject) => {
       const modelPathList = glob.sync(`${modelFolderPath}/*.${this.type}`);
       if (modelPathList.length === 0) {
-        this.logger.error(`GQL autogenerater - path: '${modelFolderPath}/*.${this.type}' - found 0 files`);
+        this.logger.error(`GQL autogenerater - path: '${modelFolderPath}/**/*.${this.type}' - found 0 files`);
         reject(`path: '${modelFolderPath}/*.${this.type}' - found 0 files`);
       }
       else {
@@ -70,7 +70,7 @@ class MongoToGQL {
     return new Promise<string[]>((resolve, reject) => {
       const modelPathList = glob.sync(`${mutationFolderPath}/*.${this.type}`);
       if (modelPathList.length === 0) {
-        this.logger.error(`GQL autogenerater - path: '${mutationFolderPath}/*.${this.type}' - found 0 files`);
+        this.logger.error(`GQL autogenerater - path: '${mutationFolderPath}/**/*.${this.type}' - found 0 files`);
         reject(`path: '${mutationFolderPath}/*.${this.type}' - found 0 files`);
       }
       else {
@@ -148,11 +148,11 @@ class MongoToGQL {
     this.typeDefs += modelDef;
   }
 
-  private mutationToInputDefinition(mutation: any, type: any) {
+  private mutationToInputDefinition(mutation: any, type: any, mutationName?: string) {
     return new Promise((resolve, reject) => {
       let tempString = "\n";
       if (type === "inputType") {
-        tempString += `input ${convertFirstUppercase(mutation.mutationName)}InputType {\n`;
+        tempString += `input ${convertFirstUppercase(mutationName)}InputType {\n`;
       }
       else {
         tempString += `input ${type} {\n`;
@@ -249,15 +249,15 @@ class MongoToGQL {
 
   private mutationToReturnTypeDefinition = (mutationName: string) => {
     let returnTypeDef = `\ntype ${convertFirstUppercase(mutationName)}ReturnType {\n`;
-    returnTypeDef += "\tdone: JSON\n";
-    returnTypeDef += "\terror: JSON\n";
+    returnTypeDef += "\tdone: JSON!\n";
+    returnTypeDef += "\terror: JSON!\n";
     returnTypeDef += "}\n";
     this.typeDefs += returnTypeDef;
   }
 
   private modelToReturnTypeDefinition = (modelName: string) => {
     let returnTypeDef = `\ntype ${convertCapAndRemovePlural(modelName)}ReturnType {\n`;
-    returnTypeDef += `\tdata: [${convertCapAndRemovePlural(modelName)}]\n`;
+    returnTypeDef += `\tdata: [${convertCapAndRemovePlural(modelName)}!]\n`;
     returnTypeDef += "\tpage: Int\n";
     returnTypeDef += "\ttotal: Int\n";
     returnTypeDef += "}\n";
@@ -294,10 +294,10 @@ class MongoToGQL {
           const Mutation = require(path.resolve(mutationPath)).default;
           const mutation = new Mutation();
 
-          await this.mutationToInputDefinition(mutation, "inputType");
-          this.mutationToReturnTypeDefinition(mutation.mutationName);
-          this.typeMutationDefs += `\t${convertFirstLowercase(mutation.mutationName)}(input: ${convertFirstUppercase(mutation.mutationName)}InputType!): ${convertFirstUppercase(mutation.mutationName)}ReturnType\n`;
-          this.resolvers.Mutation[convertFirstLowercase(mutation.mutationName)] = mutation.resolver;
+          await this.mutationToInputDefinition(mutation, "inputType", Mutation.name);
+          this.mutationToReturnTypeDefinition(Mutation.name);
+          this.typeMutationDefs += `\t${convertFirstLowercase(Mutation.name)}(input: ${convertFirstUppercase(Mutation.name)}InputType!): ${convertFirstUppercase(Mutation.name)}ReturnType\n`;
+          this.resolvers.Mutation[convertFirstLowercase(Mutation.name)] = mutation.resolver;
         }));
         this.typeMutationDefs += "} \n";
 

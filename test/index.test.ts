@@ -106,7 +106,7 @@ enum UserSortKey {
 }
 
 type UserReturnType {
-	data: [User]
+	data: [User!]
 	page: Int
 	total: Int
 }
