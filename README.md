@@ -16,6 +16,10 @@ Just write your mongoose model code, then I generate gql code for you!
 * auth boolean option has added into the gqloption
 * Now you able to connect with the typescript model and mutation in development mode. Set the 'devWithTs' option and use the nodemon. 
 
+*** *2.2.13 ***
+* subdirectory supporting has updated (bug fix) 
+* getting a total query has enhanced (bug fix) 
+
 
 ## Installing
 ```

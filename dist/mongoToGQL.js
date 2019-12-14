@@ -229,11 +229,12 @@ class MongoToGQL {
                         sortMap[splitedKey[0]] = splitedKey[1];
                     }
                     console.log(queryMap);
+                    const total = yield model.find(queryMap).populate(gqlOption && gqlOption.Populate).countDocuments();
                     const data = yield model.find(queryMap).populate(gqlOption && gqlOption.Populate).skip(page * limit).limit(limit).sort(sortMap);
                     resolve({
                         data: data,
                         page: page,
-                        total: data.length
+                        total: total
                     });
                 }
                 catch (error) {

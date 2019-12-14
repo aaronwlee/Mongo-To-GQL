@@ -231,11 +231,12 @@ class MongoToGQL {
 
           console.log(queryMap);
 
+          const total = await model.find(queryMap).populate(gqlOption && gqlOption.Populate).countDocuments();
           const data = await model.find(queryMap).populate(gqlOption && gqlOption.Populate).skip(page * limit).limit(limit).sort(sortMap);
           resolve({
             data: data,
             page: page,
-            total: data.length
+            total: total
           });
         } catch (error) {
           reject(error);
