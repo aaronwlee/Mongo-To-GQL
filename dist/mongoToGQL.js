@@ -296,8 +296,8 @@ class MongoToGQL {
             try {
                 this.logger.debug("GQL autogenerater - start");
                 Object.keys(modelList).forEach((importedModel) => {
-                    const model = importedModel.default;
-                    const gqlOption = importedModel.gqlOption ? importedModel.gqlOption : {};
+                    const model = modelList[importedModel].default;
+                    const gqlOption = modelList[importedModel].gqlOption ? modelList[importedModel].gqlOption : {};
                     const errors = validate_1.virtualsValidate(model);
                     if (errors.length > 0) {
                         this.logger.error("error!! => ", errors);
@@ -313,7 +313,7 @@ class MongoToGQL {
                 if (mutationList) {
                     this.resolvers.Mutation = {};
                     yield Promise.all(Object.keys(mutationList).map((importedMutation) => __awaiter(this, void 0, void 0, function* () {
-                        const Mutation = importedMutation.default;
+                        const Mutation = mutationList[importedMutation].default;
                         const mutation = new Mutation();
                         yield this.mutationToInputDefinition(mutation, "inputType", Mutation.name);
                         this.mutationToReturnTypeDefinition(Mutation.name);

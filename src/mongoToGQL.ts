@@ -321,8 +321,8 @@ class MongoToGQL {
       this.logger.debug("GQL autogenerater - start");
 
       Object.keys(modelList).forEach((importedModel: any) => {
-        const model: Model<any> = importedModel.default;
-        const gqlOption: IgqlOption = importedModel.gqlOption ? importedModel.gqlOption : {};
+        const model: Model<any> = modelList[importedModel].default;
+        const gqlOption: IgqlOption = modelList[importedModel].gqlOption ? modelList[importedModel].gqlOption : {};
         const errors = virtualsValidate(model)
         if (errors.length > 0) {
           this.logger.error("error!! => ", errors)
@@ -341,7 +341,7 @@ class MongoToGQL {
         this.resolvers.Mutation = {};
 
         await Promise.all(Object.keys(mutationList).map(async (importedMutation: any) => {
-          const Mutation = importedMutation.default;
+          const Mutation = mutationList[importedMutation].default;
           const mutation = new Mutation();
 
           await this.mutationToInputDefinition(mutation, "inputType", Mutation.name);
