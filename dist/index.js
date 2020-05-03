@@ -112,6 +112,7 @@ function executeApolloServer(_a) {
                         {
                             settings: { 'request.credentials': 'include' }
                         } })).applyMiddleware({ app, path });
+                logger_1.default.info(`GQL has successfully applied to middleware at ${path}`);
                 return {
                     converted: converted,
                     pureTypeDefs: mongotogql.typeDefs,
@@ -125,13 +126,14 @@ function executeApolloServer(_a) {
                         {
                             settings: { 'request.credentials': 'include' }
                         } })).applyMiddleware({ app, path });
+                logger_1.default.info(`GQL has successfully applied to middleware at ${path}`);
                 return {
                     converted: converted,
                     pureTypeDefs: mongotogql.typeDefs,
                     pureResolvers: mongotogql.resolvers
                 };
             }
-            throw "Either modelFolderPath or modelList is must required";
+            throw "Either 'modelFolderPath' or 'modelList' is must required";
         }
         catch (error) {
             console.error(error.error);

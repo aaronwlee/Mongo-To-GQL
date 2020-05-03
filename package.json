@@ -1,7 +1,7 @@
 {
   "name": "mongo-to-gql",
   "email": "aaronwoolee95@gmail.com",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "mongodb model to graphql for apollo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -39,7 +39,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "npm tsc",
+    "build": "tsc",
     "pub": "npm publish --access=public",
     "test": "jest",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
