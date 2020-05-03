@@ -60,6 +60,41 @@ exports.graphType = {
     CustomArray: (custom) => `[${custom}]`,
     CustomArrayRequire: (custom) => `[${custom}!]`,
 };
+function convertToGQL(_a) {
+    var options = __rest(_a, []);
+    return __awaiter(this, void 0, void 0, function* () {
+        const { modelFolderPath, mutationFolderPath = null, modelList, mutationList = null, devWithTs = false, customResolvers, customTypeDefs } = options;
+        if (devWithTs && modelFolderPath) {
+            logger_1.default.warn("You've selected development with typescript mode. Make sure you're using 'nodemon'. Have fun! :)");
+            logger_1.default.info("Don't forget to change 'devWithTs' option to false and pure js file when you'll deploy as a production.");
+        }
+        try {
+            const mongotogql = new mongoToGQL_1.default(logger_1.default, devWithTs);
+            if (modelFolderPath) {
+                const converted = yield mongotogql.generatebyPath(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs);
+                return {
+                    converted: converted,
+                    pureTypeDefs: mongotogql.typeDefs,
+                    pureResolvers: mongotogql.resolvers
+                };
+            }
+            else if (modelList) {
+                const converted = yield mongotogql.generatebyList(modelList, mutationList, customResolvers, customTypeDefs);
+                return {
+                    converted: converted,
+                    pureTypeDefs: mongotogql.typeDefs,
+                    pureResolvers: mongotogql.resolvers
+                };
+            }
+            throw "Either modelFolderPath or modelList is must required";
+        }
+        catch (error) {
+            console.error(error.error);
+            throw error;
+        }
+    });
+}
+exports.convertToGQL = convertToGQL;
 function executeApolloServer(_a) {
     var options = __rest(_a, []);
     return __awaiter(this, void 0, void 0, function* () {

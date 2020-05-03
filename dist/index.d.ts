@@ -71,6 +71,15 @@ export interface ImongoToGQLOptions {
     modelList?: any;
     mutationList?: any;
 }
+export interface ImongoToGQLConverterOptions {
+    modelFolderPath?: string;
+    mutationFolderPath?: string;
+    devWithTs?: boolean;
+    customResolvers?: any;
+    customTypeDefs?: string;
+    modelList?: any;
+    mutationList?: any;
+}
 interface IresultType {
     converted: {
         typeDefs: any;
@@ -79,6 +88,7 @@ interface IresultType {
     pureTypeDefs: string;
     pureResolvers: any;
 }
+export declare function convertToGQL({ ...options }: ImongoToGQLConverterOptions): Promise<IresultType>;
 export declare function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<IresultType>;
 declare const _default: (logger?: Logger, devWithTs?: boolean) => MongoToGQL;
 export default _default;

@@ -4,9 +4,9 @@
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 Just write your mongoose model code, then I generate gql code for you!
 
-*Current* - ***2.2.14*** - *(feat)*: [aaronwlee](https://github.com/aaronwlee)
-* enable the conversion the list of models
-* enable the conversion the list of mutations
+*Current* - ***2.3.0*** - *(feat)*: [aaronwlee](https://github.com/aaronwlee)
+* enabled the conversion with the list of models and mutations.
+* enabled the conversion models and mutations to GQL ready to use `string` and `object`.
 
 ***2.2.13*** - *(fix)*: [aaronwlee](https://github.com/aaronwlee)
 * subdirectory supporting has updated (bug fix) 
