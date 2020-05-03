@@ -63,24 +63,40 @@ exports.graphType = {
 function executeApolloServer(_a) {
     var options = __rest(_a, []);
     return __awaiter(this, void 0, void 0, function* () {
-        const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", devWithTs = false, apolloOptions, context, customResolvers, customTypeDefs } = options;
-        if (devWithTs) {
+        const { app, modelFolderPath, mutationFolderPath = null, modelList, mutationList = null, path = "/graphql", devWithTs = false, apolloOptions, context, customResolvers, customTypeDefs } = options;
+        if (devWithTs && modelFolderPath) {
             logger_1.default.warn("You've selected development with typescript mode. Make sure you're using 'nodemon'. Have fun! :)");
             logger_1.default.info("Don't forget to change 'devWithTs' option to false and pure js file when you'll deploy as a production.");
         }
         try {
             const mongotogql = new mongoToGQL_1.default(logger_1.default, devWithTs);
-            const converted = yield mongotogql.generate(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs);
-            new apollo_server_express_1.ApolloServer(Object.assign(Object.assign(Object.assign({}, apolloOptions), converted), { context: context, playground: process.env.NODE_ENV === 'production' ?
-                    false :
-                    {
-                        settings: { 'request.credentials': 'include' }
-                    } })).applyMiddleware({ app, path });
-            return {
-                converted: converted,
-                pureTypeDefs: mongotogql.typeDefs,
-                pureResolvers: mongotogql.resolvers
-            };
+            if (modelFolderPath) {
+                const converted = yield mongotogql.generatebyPath(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs);
+                new apollo_server_express_1.ApolloServer(Object.assign(Object.assign(Object.assign({}, apolloOptions), converted), { context: context, playground: process.env.NODE_ENV === 'production' ?
+                        false :
+                        {
+                            settings: { 'request.credentials': 'include' }
+                        } })).applyMiddleware({ app, path });
+                return {
+                    converted: converted,
+                    pureTypeDefs: mongotogql.typeDefs,
+                    pureResolvers: mongotogql.resolvers
+                };
+            }
+            else if (modelList) {
+                const converted = yield mongotogql.generatebyList(modelList, mutationList, customResolvers, customTypeDefs);
+                new apollo_server_express_1.ApolloServer(Object.assign(Object.assign(Object.assign({}, apolloOptions), converted), { context: context, playground: process.env.NODE_ENV === 'production' ?
+                        false :
+                        {
+                            settings: { 'request.credentials': 'include' }
+                        } })).applyMiddleware({ app, path });
+                return {
+                    converted: converted,
+                    pureTypeDefs: mongotogql.typeDefs,
+                    pureResolvers: mongotogql.resolvers
+                };
+            }
+            throw "Either modelFolderPath or modelList is must required";
         }
         catch (error) {
             console.error(error.error);

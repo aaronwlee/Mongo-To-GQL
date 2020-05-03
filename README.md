@@ -1,6 +1,5 @@
 # Mongo-To-GQL
 <a href="https://github.com/aaronwlee/Mongo-To-GQL/blob/master/LICENSE.md"><img alt="GitHub license" src="https://img.shields.io/github/license/aaronwlee/Mongo-To-GQL"></a>
-#[ ]
 
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 Just write your mongoose model code, then I generate gql code for you!

@@ -61,13 +61,15 @@ export declare const graphType: {
 export interface ImongoToGQLOptions {
     app: Express;
     path?: string;
-    modelFolderPath: string;
+    modelFolderPath?: string;
     mutationFolderPath?: string;
     devWithTs?: boolean;
     apolloOptions?: ApolloServerExpressConfig;
     customResolvers?: any;
     context?: ({ req }: any) => Icontext;
     customTypeDefs?: string;
+    modelList?: any;
+    mutationList?: any;
 }
 interface IresultType {
     converted: {

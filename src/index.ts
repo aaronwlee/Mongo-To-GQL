@@ -79,13 +79,16 @@ export const graphType = {
 export interface ImongoToGQLOptions {
   app: Express;
   path?: string;
-  modelFolderPath: string;
+  modelFolderPath?: string;
   mutationFolderPath?: string;
   devWithTs?: boolean;
   apolloOptions?: ApolloServerExpressConfig;
   customResolvers?: any;
   context?: ({ req }: any) => Icontext;
   customTypeDefs?: string;
+
+  modelList?: any;
+  mutationList?: any;
 }
 
 interface IresultType {
@@ -98,29 +101,50 @@ interface IresultType {
 }
 
 export async function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<IresultType> {
-  const { app, modelFolderPath, mutationFolderPath = null, path = "/graphql", devWithTs = false, apolloOptions, context, customResolvers, customTypeDefs } = options;
-  if (devWithTs) {
+  const { app, modelFolderPath, mutationFolderPath = null, modelList, mutationList = null, path = "/graphql", devWithTs = false, apolloOptions, context, customResolvers, customTypeDefs } = options;
+  if (devWithTs && modelFolderPath) {
     defaultlogger.warn("You've selected development with typescript mode. Make sure you're using 'nodemon'. Have fun! :)")
     defaultlogger.info("Don't forget to change 'devWithTs' option to false and pure js file when you'll deploy as a production.")
   }
   try {
     const mongotogql = new MongoToGQL(defaultlogger, devWithTs)
-    const converted = await mongotogql.generate(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs)
-    new ApolloServer({
-      ...apolloOptions, ...converted, context: context,
-      playground:
-        process.env.NODE_ENV === 'production' ?
-          false :
-          {
-            settings: { 'request.credentials': 'include' }
-          }
-    }).applyMiddleware({ app, path });
+    if (modelFolderPath) {
+      const converted = await mongotogql.generatebyPath(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs)
+      new ApolloServer({
+        ...apolloOptions, ...converted, context: context,
+        playground:
+          process.env.NODE_ENV === 'production' ?
+            false :
+            {
+              settings: { 'request.credentials': 'include' }
+            }
+      }).applyMiddleware({ app, path });
 
-    return {
-      converted: converted,
-      pureTypeDefs: mongotogql.typeDefs,
-      pureResolvers: mongotogql.resolvers
+      return {
+        converted: converted,
+        pureTypeDefs: mongotogql.typeDefs,
+        pureResolvers: mongotogql.resolvers
+      }
+    } else if (modelList) {
+      const converted = await mongotogql.generatebyList(modelList, mutationList, customResolvers, customTypeDefs)
+      new ApolloServer({
+        ...apolloOptions, ...converted, context: context,
+        playground:
+          process.env.NODE_ENV === 'production' ?
+            false :
+            {
+              settings: { 'request.credentials': 'include' }
+            }
+      }).applyMiddleware({ app, path });
+
+      return {
+        converted: converted,
+        pureTypeDefs: mongotogql.typeDefs,
+        pureResolvers: mongotogql.resolvers
+      }
     }
+    throw "Either modelFolderPath or modelList is must required"
+
   } catch (error) {
     console.error(error.error)
     throw error

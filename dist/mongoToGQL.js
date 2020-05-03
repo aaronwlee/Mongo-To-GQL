@@ -245,7 +245,7 @@ class MongoToGQL {
         this.modelToReturnTypeDefinition(model.modelName);
         this.typeQueryDefs += `\t${convertCap_1.convertCapAndAddPlural(model.modelName)}(page: Int, limit: Int, filter: ${convertCap_1.convertCapAndRemovePlural(model.modelName)}Query, sort: ${convertCap_1.convertCapAndRemovePlural(model.modelName)}SortKey): ${convertCap_1.convertCapAndRemovePlural(model.modelName)}ReturnType!\n`;
     }
-    generate(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs) {
+    generatebyPath(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 this.logger.debug("GQL autogenerater - start");
@@ -271,6 +271,49 @@ class MongoToGQL {
                     const mutationPathList = yield this.readMutationList(path_1.default.join(process.cwd(), mutationFolderPath));
                     yield Promise.all(mutationPathList.map((mutationPath) => __awaiter(this, void 0, void 0, function* () {
                         const Mutation = require(path_1.default.resolve(mutationPath)).default;
+                        const mutation = new Mutation();
+                        yield this.mutationToInputDefinition(mutation, "inputType", Mutation.name);
+                        this.mutationToReturnTypeDefinition(Mutation.name);
+                        this.typeMutationDefs += `\t${convertCap_1.convertFirstLowercase(Mutation.name)}(input: ${convertCap_1.convertFirstUppercase(Mutation.name)}InputType!): ${convertCap_1.convertFirstUppercase(Mutation.name)}ReturnType\n`;
+                        this.resolvers.Mutation[convertCap_1.convertFirstLowercase(Mutation.name)] = mutation.resolver;
+                    })));
+                    this.typeMutationDefs += "} \n";
+                    this.typeDefs += this.typeMutationDefs;
+                }
+                this.logger.debug("GQL autogenerater - complete");
+                return this.converted(customResolvers, customTypeDefs);
+            }
+            catch (error) {
+                throw {
+                    error: error,
+                    typeDefs: this.typeDefs
+                };
+            }
+        });
+    }
+    generatebyList(modelList, mutationList, customResolvers, customTypeDefs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.logger.debug("GQL autogenerater - start");
+                Object.keys(modelList).forEach((importedModel) => {
+                    const model = importedModel.default;
+                    const gqlOption = importedModel.gqlOption ? importedModel.gqlOption : {};
+                    const errors = validate_1.virtualsValidate(model);
+                    if (errors.length > 0) {
+                        this.logger.error("error!! => ", errors);
+                    }
+                    this.modelToTypeDefinition(model, gqlOption);
+                    this.modelToQueryDefinition(model);
+                    this.modelToSortKeyDefinition(model);
+                    this.modelToDefaultQuery(model, gqlOption);
+                    this.modelToGetALLQuery(model, gqlOption);
+                });
+                this.typeQueryDefs += "} \n";
+                this.typeDefs += this.typeQueryDefs;
+                if (mutationList) {
+                    this.resolvers.Mutation = {};
+                    yield Promise.all(Object.keys(mutationList).map((importedMutation) => __awaiter(this, void 0, void 0, function* () {
+                        const Mutation = importedMutation.default;
                         const mutation = new Mutation();
                         yield this.mutationToInputDefinition(mutation, "inputType", Mutation.name);
                         this.mutationToReturnTypeDefinition(Mutation.name);

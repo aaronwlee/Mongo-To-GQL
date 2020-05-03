@@ -265,7 +265,7 @@ class MongoToGQL {
     this.typeDefs += returnTypeDef;
   }
 
-  public async generate(modelFolderPath: string, mutationFolderPath?: string, customResolvers?: any, customTypeDefs?: string) {
+  public async generatebyPath(modelFolderPath: string, mutationFolderPath?: string, customResolvers?: any, customTypeDefs?: string) {
     try {
       this.logger.debug("GQL autogenerater - start");
       const modelPathList: string[] = await this.readModelList(path.join(process.cwd(), modelFolderPath));
@@ -293,6 +293,55 @@ class MongoToGQL {
         const mutationPathList: string[] = await this.readMutationList(path.join(process.cwd(), mutationFolderPath));
         await Promise.all(mutationPathList.map(async (mutationPath: any) => {
           const Mutation = require(path.resolve(mutationPath)).default;
+          const mutation = new Mutation();
+
+          await this.mutationToInputDefinition(mutation, "inputType", Mutation.name);
+          this.mutationToReturnTypeDefinition(Mutation.name);
+          this.typeMutationDefs += `\t${convertFirstLowercase(Mutation.name)}(input: ${convertFirstUppercase(Mutation.name)}InputType!): ${convertFirstUppercase(Mutation.name)}ReturnType\n`;
+          this.resolvers.Mutation[convertFirstLowercase(Mutation.name)] = mutation.resolver;
+        }));
+        this.typeMutationDefs += "} \n";
+
+        this.typeDefs += this.typeMutationDefs;
+      }
+
+      this.logger.debug("GQL autogenerater - complete");
+
+      return this.converted(customResolvers, customTypeDefs);
+    } catch (error) {
+      throw {
+        error: error,
+        typeDefs: this.typeDefs
+      }
+    }
+  }
+
+  public async generatebyList(modelList: any, mutationList: any, customResolvers?: any, customTypeDefs?: string) {
+    try {
+      this.logger.debug("GQL autogenerater - start");
+
+      Object.keys(modelList).forEach((importedModel: any) => {
+        const model: Model<any> = importedModel.default;
+        const gqlOption: IgqlOption = importedModel.gqlOption ? importedModel.gqlOption : {};
+        const errors = virtualsValidate(model)
+        if (errors.length > 0) {
+          this.logger.error("error!! => ", errors)
+        }
+        this.modelToTypeDefinition(model, gqlOption);
+        this.modelToQueryDefinition(model);
+        this.modelToSortKeyDefinition(model);
+        this.modelToDefaultQuery(model, gqlOption);
+        this.modelToGetALLQuery(model, gqlOption);
+      })
+
+      this.typeQueryDefs += "} \n";
+      this.typeDefs += this.typeQueryDefs;
+
+      if (mutationList) {
+        this.resolvers.Mutation = {};
+
+        await Promise.all(Object.keys(mutationList).map(async (importedMutation: any) => {
+          const Mutation = importedMutation.default;
           const mutation = new Mutation();
 
           await this.mutationToInputDefinition(mutation, "inputType", Mutation.name);
