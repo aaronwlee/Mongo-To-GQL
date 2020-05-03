@@ -315,10 +315,10 @@ class MongoToGQL {
                     yield Promise.all(Object.keys(mutationList).map((importedMutation) => __awaiter(this, void 0, void 0, function* () {
                         const Mutation = mutationList[importedMutation].default;
                         const mutation = new Mutation();
-                        yield this.mutationToInputDefinition(mutation, "inputType", Mutation.name);
-                        this.mutationToReturnTypeDefinition(Mutation.name);
-                        this.typeMutationDefs += `\t${convertCap_1.convertFirstLowercase(Mutation.name)}(input: ${convertCap_1.convertFirstUppercase(Mutation.name)}InputType!): ${convertCap_1.convertFirstUppercase(Mutation.name)}ReturnType\n`;
-                        this.resolvers.Mutation[convertCap_1.convertFirstLowercase(Mutation.name)] = mutation.resolver;
+                        yield this.mutationToInputDefinition(mutation, "inputType", importedMutation);
+                        this.mutationToReturnTypeDefinition(importedMutation);
+                        this.typeMutationDefs += `\t${convertCap_1.convertFirstLowercase(importedMutation)}(input: ${convertCap_1.convertFirstUppercase(importedMutation)}InputType!): ${convertCap_1.convertFirstUppercase(importedMutation)}ReturnType\n`;
+                        this.resolvers.Mutation[convertCap_1.convertFirstLowercase(importedMutation)] = mutation.resolver;
                     })));
                     this.typeMutationDefs += "} \n";
                     this.typeDefs += this.typeMutationDefs;

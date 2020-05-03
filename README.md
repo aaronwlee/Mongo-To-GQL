@@ -607,7 +607,7 @@ class AddUser implements Imutation {
                 })
                 resolve({
                     done: result,
-                    error: null
+                    error: {}
                 })
             } catch (error) {
                 if (error.code === 11000) {

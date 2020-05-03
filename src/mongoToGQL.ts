@@ -344,10 +344,10 @@ class MongoToGQL {
           const Mutation = mutationList[importedMutation].default;
           const mutation = new Mutation();
 
-          await this.mutationToInputDefinition(mutation, "inputType", Mutation.name);
-          this.mutationToReturnTypeDefinition(Mutation.name);
-          this.typeMutationDefs += `\t${convertFirstLowercase(Mutation.name)}(input: ${convertFirstUppercase(Mutation.name)}InputType!): ${convertFirstUppercase(Mutation.name)}ReturnType\n`;
-          this.resolvers.Mutation[convertFirstLowercase(Mutation.name)] = mutation.resolver;
+          await this.mutationToInputDefinition(mutation, "inputType", importedMutation);
+          this.mutationToReturnTypeDefinition(importedMutation);
+          this.typeMutationDefs += `\t${convertFirstLowercase(importedMutation)}(input: ${convertFirstUppercase(importedMutation)}InputType!): ${convertFirstUppercase(importedMutation)}ReturnType\n`;
+          this.resolvers.Mutation[convertFirstLowercase(importedMutation)] = mutation.resolver;
         }));
         this.typeMutationDefs += "} \n";
 
