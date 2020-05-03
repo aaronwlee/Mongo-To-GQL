@@ -4,21 +4,26 @@
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 Just write your mongoose model code, then I generate gql code for you!
 
-*** *New Stable Version!! 2.2.7 ***
+*Current* - ***2.2.14*** - *(feat)*: [aaronwlee](https://github.com/aaronwlee)
+* enable the conversion the list of models
+* enable the conversion the list of mutations
+
+***2.2.13*** - *(fix)*: [aaronwlee](https://github.com/aaronwlee)
+* subdirectory supporting has updated (bug fix) 
+* getting a total query has enhanced (bug fix) 
+
+***2.2.10*** - *(fix)*: [aaronwlee](https://github.com/aaronwlee)
+* authentication method for the apollo server has added
+* auth boolean option has added into the gqloption
+* Now you able to connect with the typescript model and mutation in development mode. Set the 'devWithTs' option and use the nodemon. 
+
+***2.2.7*** - *(feat)*: [aaronwlee](https://github.com/aaronwlee)
 * embedded many supported
 * embedded search implemented
 * customizable apollo server options supported
 * customizable resolvers and typeDefs options supported
 * file upload support via Upload
 
-*** *2.2.10 ***
-* authentication method for the apollo server has added
-* auth boolean option has added into the gqloption
-* Now you able to connect with the typescript model and mutation in development mode. Set the 'devWithTs' option and use the nodemon. 
-
-*** *2.2.13 ***
-* subdirectory supporting has updated (bug fix) 
-* getting a total query has enhanced (bug fix) 
 
 
 ## Installing
@@ -88,7 +93,12 @@ export default mongoose.model<UserDocument>("User", schema);
 After using our mongo-to-gql, you'll get auto-generated this queries and gql definitions
 ```ts
 query getUsers {
-  Users(page: 0, limit: 4, filter: {name_has: "a", email_in: ["mongo@gql.com", "gql@mongo.com"]}, sort: updatedAt_asc) {
+  Users(
+    page: 0, 
+    limit: 4, 
+    filter: {name_has: "a", email_in: ["mongo@gql.com", "gql@mongo.com"]}, 
+    sort: updatedAt_asc
+    ) {
     data {
       _id
       name
@@ -179,46 +189,125 @@ Result
 }
 ```
 
-## Methods
-
-<br>
-
-### Let's start it!
-
+## Let's start it!
+### Start with ApolloServer
 * Development mode | start with nodemon your main ts file
 
 ```ts
 import { executeApolloServer } from 'mongo-to-gql';
-import express from "express";
+import express from 'express';
 
 const app = express();
-// or
+
 executeApolloServer({
     app: app,
-    devWithTs: true,
-    modelFolderPath: 'src/model',
-    mutationFolderPath: 'src/mutation',
+    devWithTs: true,                // if you're using typescript with nodemon and ts-node.
+    modelFolderPath: 'src/model',       // pure .ts path
+    mutationFolderPath: 'src/mutation', // pure .ts path
     path: "/myRouter",
 }).then(result => {
   console.log(result.pureTypeDefs)  // display result
 })
 ```
 
-* Production Mode
+* Production Mode - built by Typescript
 
 ```ts
 import { executeApolloServer } from 'mongo-to-gql';
-import express from "express";
+import express from 'express';
 
 const app = express();
-// or
+
 executeApolloServer({
     app: app,
-    modelFolderPath: 'dist/model',
-    mutationFolderPath: 'dist/mutation',
+    modelFolderPath: 'dist/model',        // built .js path
+    mutationFolderPath: 'dist/mutation',  // built .js path
     path: "/myRouter",
 }).then(result => {
   console.log(result.pureTypeDefs)  // display result
+})
+```
+
+* Production Mode - built by Webpack
+
+```ts
+import { executeApolloServer } from 'mongo-to-gql';
+import express from 'express';
+import * as User from './model/user';             // this is important to import an entire module's contents
+import * as addUser from './mutation/addUser';    // more info - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
+
+const app = express();
+
+executeApolloServer({
+    app: app,
+    modelList: {
+      User
+    },
+    mutationList: {
+      addUser
+    }
+    path: "/myRouter",
+}).then(result => {
+  console.log(result.pureTypeDefs)  // display result
+})
+```
+
+<br />
+
+### Start with only Converting
+
+* Development mode | start with nodemon your main ts file
+
+```ts
+import { convertToGQL } from 'mongo-to-gql';
+import express from 'express';
+
+const app = express();
+
+convertToGQL({
+    devWithTs: true,                // if you're using typescript with nodemon and ts-node.
+    modelFolderPath: 'src/model',       // pure .ts path
+    mutationFolderPath: 'src/mutation', // pure .ts path
+}).then(result => {
+  console.log(result.converted)  // use it to init your gql server
+})
+```
+
+* Production Mode - built by Typescript
+
+```ts
+import { convertToGQL } from 'mongo-to-gql';
+import express from 'express';
+
+const app = express();
+
+convertToGQL({
+    modelFolderPath: 'dist/model',        // built .js path
+    mutationFolderPath: 'dist/mutation',  // built .js path
+}).then(result => {
+  console.log(result.converted)  // use it to init your gql server
+})
+```
+
+* Production Mode - built by Webpack
+
+```ts
+import { convertToGQL } from 'mongo-to-gql';
+import express from 'express';
+import * as User from './model/user';             // this is important to import an entire module's contents
+import * as addUser from './mutation/addUser';    // more info - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
+
+const app = express();
+
+convertToGQL({
+    modelList: {
+      User
+    },
+    mutationList: {
+      addUser
+    }
+}).then(result => {
+  console.log(result.converted)  // use it to init your gql server
 })
 ```
 
@@ -227,11 +316,19 @@ executeApolloServer({
 ```ts
 const options: ImongoToGQLOptions = {
   app: app,
+
+  // one of these is a must.
   modelFolderPath: 'dist/model',
+  modelList: {
+    User: userModel
+  }
   
   // optional
   devWithTs: true,                  // option for using typescript folder path. for the auto build in development, you must use nodemon.
-  mutationFolderPath: 'dist/mutation',
+  mutationFolderPath: 'dist/mutation',  // when you use modelFolderPath only
+  mutationList: {                       // when you use modelList only
+    addUser
+  }
   path: '/thisisnotdefaultpath',
   context: ({ req }: any) => {      // https://www.apollographql.com/docs/apollo-server/security/authentication/
     const user = req.session.user;
@@ -261,11 +358,46 @@ const options: ImongoToGQLOptions = {
 ```
 - `app` is your express app
 - `modelFolderPath` should be your pure js model folder which is starting with `pwd` path | but if you set `devWithTs` option to true, then you can able to use the ts model folder.
+- `modelList` should be a list of your imported models, and it must be an entire module's contents. ex) `import * as` 
 - `mutationFolderPath` should be your pure js mutation folder which is starting with `pwd` path | but if you set `devWithTs` option to true, then you can able to use the ts mutation folder.
+- `mutationList` should be a list of your imported mutations, and it must be an entire module's contents. ex) `import * as` 
 - `devWithTs` this option is enable to use your typescript folder path only for development environment. must use nodemon.
 - `path` is for graphql path config, default router is `/graphql`
 - `context` is for authenticating your resolvers. you can basically pass the user parameter or token.  
 - `apolloOptions` this option for ApolloServer's param
+- `customResolvers` is for the extra resolvers
+- `customTypeDefs` is for the extra typeDefs, but it must be string
+
+### options for the `convertToGQL({})`
+
+```ts
+const options: ImongoToGQLConverterOptions = {
+  modelFolderPath: 'dist/model',
+  
+  // optional
+  devWithTs: true,                  // option for using typescript folder path. for the auto build in development, you must use nodemon.
+  mutationFolderPath: 'dist/mutation',
+  customTypeDefs: `
+  type Custom {
+    something: String
+  }
+  `
+  customResolvers: {
+    Query: {
+        asd: () => {
+            console.log("hi")
+        }
+    },
+    Mutation: {...}
+    File: "Somthing"
+  }
+}
+```
+- `modelFolderPath` should be your pure js model folder which is starting with `pwd` path | but if you set `devWithTs` option to true, then you can able to use the ts model folder.
+- `modelList` should be a list of your imported models, and it must be an entire module's contents. ex) `import * as` 
+- `mutationFolderPath` should be your pure js mutation folder which is starting with `pwd` path | but if you set `devWithTs` option to true, then you can able to use the ts mutation folder.
+- `mutationList` should be a list of your imported mutations, and it must be an entire module's contents. ex) `import * as` 
+- `devWithTs` this option is enable to use your typescript folder path only for development environment. must use nodemon.
 - `customResolvers` is for the extra resolvers
 - `customTypeDefs` is for the extra typeDefs, but it must be string
 
@@ -274,8 +406,8 @@ const options: ImongoToGQLOptions = {
 ```ts
 executeApolloServer(options)
 ```
-- Initializing, building and connect apollo server with MongoToGQLOptions
-- After your express server executed, apollo server will start with `/graphql` router or your path config
+- Initializing, building and connect apollo server with `MongoToGQLOptions`
+- After your express server executed, apollo server will start with `/graphql` router or your `path` config
 
 ```ts
 interface IresultType {
@@ -288,6 +420,25 @@ interface IresultType {
 }
 ```
 - this interface is the promise results of `executeApolloServer`
+
+<br />
+
+```ts
+convertToGQL(options)
+```
+- it converts your `models` and `mutations` to GQL ready to use `string` and `object`.
+
+```ts
+interface IresultType {
+  converted: {
+    typeDefs: any,
+    resolvers: any
+  },
+  pureTypeDefs: string,
+  pureResolvers: any
+}
+```
+- this interface is the promise results of `convertToGQL`
 
 <br>
 <br>

@@ -5,7 +5,6 @@ import { ApolloServer, ApolloServerExpressConfig } from "apollo-server-express";
 import { Express } from 'express'
 import { Model } from "mongoose";
 
-
 export interface Icontext {
   user: any;
 }
@@ -30,8 +29,6 @@ export interface IgqlOption {
   }[];
   Auth?: boolean;
 }
-
-
 
 export const graphType = {
   String: "String",
@@ -91,6 +88,17 @@ export interface ImongoToGQLOptions {
   mutationList?: any;
 }
 
+export interface ImongoToGQLConverterOptions {
+  modelFolderPath?: string;
+  mutationFolderPath?: string;
+  devWithTs?: boolean;
+  customResolvers?: any;
+  customTypeDefs?: string;
+
+  modelList?: any;
+  mutationList?: any;
+}
+
 interface IresultType {
   converted: {
     typeDefs: any,
@@ -98,6 +106,39 @@ interface IresultType {
   },
   pureTypeDefs: string,
   pureResolvers: any
+}
+
+export async function convertToGQL({ ...options }: ImongoToGQLConverterOptions): Promise<IresultType> {
+  const { modelFolderPath, mutationFolderPath = null, modelList, mutationList = null, devWithTs = false, customResolvers, customTypeDefs } = options;
+  if (devWithTs && modelFolderPath) {
+    defaultlogger.warn("You've selected development with typescript mode. Make sure you're using 'nodemon'. Have fun! :)")
+    defaultlogger.info("Don't forget to change 'devWithTs' option to false and pure js file when you'll deploy as a production.")
+  }
+  try {
+    const mongotogql = new MongoToGQL(defaultlogger, devWithTs)
+    if (modelFolderPath) {
+      const converted = await mongotogql.generatebyPath(modelFolderPath, mutationFolderPath, customResolvers, customTypeDefs)
+
+      return {
+        converted: converted,
+        pureTypeDefs: mongotogql.typeDefs,
+        pureResolvers: mongotogql.resolvers
+      }
+    } else if (modelList) {
+      const converted = await mongotogql.generatebyList(modelList, mutationList, customResolvers, customTypeDefs)
+
+      return {
+        converted: converted,
+        pureTypeDefs: mongotogql.typeDefs,
+        pureResolvers: mongotogql.resolvers
+      }
+    }
+    throw "Either modelFolderPath or modelList is must required"
+
+  } catch (error) {
+    console.error(error.error)
+    throw error
+  }
 }
 
 export async function executeApolloServer({ ...options }: ImongoToGQLOptions): Promise<IresultType> {
