@@ -4,26 +4,23 @@
 Auto-generator for the MongoDB model to GraphQL type definition and query resolvers.
 Just write your mongoose model code, then I generate gql code for you!
 
-*Current* - ***2.3.0*** - *(feat)*: [aaronwlee](https://github.com/aaronwlee)
+*Current* - ***2.3.3*** - *(feat)*: [aaronwlee](https://github.com/aaronwlee)
 * enabled the conversion with the list of models and mutations.
 * enabled the conversion models and mutations to GQL ready to use `string` and `object`.
+* changed the mutation naming method because of the unsupported method when built by Webpack. (bug fix)
+* test and sample files have rewritten (minor)
 
 ***2.2.13*** - *(fix)*: [aaronwlee](https://github.com/aaronwlee)
 * subdirectory supporting has updated (bug fix) 
 * getting a total query has enhanced (bug fix) 
-
-***2.2.10*** - *(fix)*: [aaronwlee](https://github.com/aaronwlee)
 * authentication method for the apollo server has added
 * auth boolean option has added into the gqloption
 * Now you able to connect with the typescript model and mutation in development mode. Set the 'devWithTs' option and use the nodemon. 
-
-***2.2.7*** - *(feat)*: [aaronwlee](https://github.com/aaronwlee)
 * embedded many supported
 * embedded search implemented
 * customizable apollo server options supported
 * customizable resolvers and typeDefs options supported
 * file upload support via Upload
-
 
 
 ## Installing

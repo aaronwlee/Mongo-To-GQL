@@ -1,7 +1,6 @@
 import { Imutation, IreturnType, graphType, Icontext } from "../../src";
 
 class AddUser implements Imutation {
-  mutationName: string = "AddUser";
 
   public inputType = {
     username: graphType.String,

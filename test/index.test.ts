@@ -117,11 +117,53 @@ type Query {
 } \n`
 
 test('type definitions test', async () => {
-  const app = express();
-  const result = await executeApolloServer({
-    app: app,
-    devWithTs: true,
-    modelFolderPath: 'sample/model'
-  })
-  expect(result.pureTypeDefs).toBe(resultTypeDefs)
+	const app = express();
+	const result = await executeApolloServer({
+		app: app,
+		devWithTs: true,
+		modelFolderPath: 'sample/model'
+	})
+	expect(result.pureTypeDefs).toBe(resultTypeDefs)
+})
+
+test('mutation test', async () => {
+	const app = express();
+	const result = await executeApolloServer({
+		app: app,
+		devWithTs: true,
+		modelFolderPath: 'sample/model',
+		mutationFolderPath: 'sample/mutation'
+	})
+	expect(Object.keys(result.pureResolvers.Mutation)).toStrictEqual(["addUser"])
+})
+
+import * as testModel from '../sample/model/test'
+import * as addUser from '../sample/mutation/addUser'
+
+
+test('load model by list type test', async () => {
+	const app = express();
+	const result = await executeApolloServer({
+		app: app,
+		devWithTs: true,
+		modelList: {
+			User: testModel
+		}
+	})
+	expect(result.pureTypeDefs).toBe(resultTypeDefs)
+})
+
+test('load mutation by list test', async () => {
+	const app = express();
+	const result = await executeApolloServer({
+		app: app,
+		devWithTs: true,
+		modelList: {
+			User: testModel
+		},
+		mutationList: {
+			addUser
+		}
+	})
+	expect(Object.keys(result.pureResolvers.Mutation)).toStrictEqual(["addUser"])
 })
